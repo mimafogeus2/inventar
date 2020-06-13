@@ -1,4 +1,4 @@
-import { isDerivative } from '.'
+import { isDerivative } from '../utils'
 import { circularDependencyError } from '../errors'
 import { ChryssoProcessedConfig } from '../../types'
 

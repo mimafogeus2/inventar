@@ -5,7 +5,7 @@
  */
 
 import { ChryssoRawConfig, ChryssoProcessedConfig, ChryssoRawConfigValue, ChryssoProcessedValue } from '../../types'
-import { isValueConfig } from '.'
+import { isValueConfig } from '../utils'
 
 const processValueObject = (rawValue: ChryssoRawConfigValue): ChryssoProcessedValue => {
   return isValueConfig(rawValue) ? rawValue.value : rawValue

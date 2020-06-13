@@ -1,6 +1,6 @@
 import test from 'ava';
 
-import { resolveConfig, config2CssVars } from './core'
+import { resolveConfig, config2CssVars } from '.'
 
 const SIMPLE_CONFIG = { color: '#f00', anotherColor: () => '#0f0' }
 const DEEP_DEPENDENCY_CONFIG = { color: '#0f0', color3: (config) => config.color2, color2: (config) => config.color }

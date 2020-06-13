@@ -1,6 +1,6 @@
 import test from 'ava';
 
-import { processConfig } from '.'
+import { processConfig } from './processConfig'
 
 const SIMPLE_CONFIG = { a: 123 }
 const VALUE_OBJECT_CONFIG = { a: { value: 123 } }

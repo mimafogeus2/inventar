@@ -1,6 +1,6 @@
 import test from 'ava';
 
-import { resolveDependencies } from '.'
+import { resolveDependencies } from './resolveDependencies'
 import { COUNTER_FIELD_NAME, OBJECT_LENGTH_FIELD_NAME } from './resolveDependencies'
 import { circularDependencyError } from '../errors'
 
