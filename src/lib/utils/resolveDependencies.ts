@@ -1,5 +1,6 @@
 import { isDerivative } from '.'
 import { circularDependencyError } from '../errors'
+import { ChryssoProcessedConfig } from '../../types'
 
 export const COUNTER_FIELD_NAME = '_LAZY_EVAN_OBJECT_COUNTER'
 export const OBJECT_LENGTH_FIELD_NAME = '_LENGTH'
@@ -35,7 +36,7 @@ const createLazyEvalObject = (startObj = {}) => new Proxy(initializeStarterObjec
 // Object.values accesses all values. Value access from LazyEvalObject resolves it, so this resolved everything.
 const mutableResolveLazyEvalObject = (lazyEvalObj) => { Object.values(lazyEvalObj) }
 
-export const resolveDependencies = (starterObj) => {
+export const resolveDependencies = (starterObj: ChryssoProcessedConfig) => {
   const lazyEvalObj = createLazyEvalObject(starterObj)
   mutableResolveLazyEvalObject(lazyEvalObj)
 
