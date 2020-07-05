@@ -1,44 +1,47 @@
-import { isDerivative } from '../utils'
+import { ChryssoConfig, ChryssoProcessedConfig } from '../../types'
 import { circularDependencyError } from '../errors'
-import { ChryssoProcessedConfig } from '../../types'
+import { isDerivative } from '../utils'
 
-export const COUNTER_FIELD_NAME = '_LAZY_EVAN_OBJECT_COUNTER'
-export const OBJECT_LENGTH_FIELD_NAME = '_LENGTH'
+const createThrowIfEmptyFieldObject = (starterObject = {}) => new Proxy(starterObject, {
+  get: (target, prop) => {
+    if (!target[prop]) {
+      throw new Error(`${String(prop)} doesn't exist (yet?)`)
+    }
+    return target[prop]
+  }
+})
 
-const initializeStarterObject = (obj) => {
-  Object.defineProperty(obj, COUNTER_FIELD_NAME, { value: 0, enumerable: false, writable: true })
-  Object.defineProperty(obj, OBJECT_LENGTH_FIELD_NAME, { value: Object.keys(obj).length, enumerable: false, writable: true })
+export const resolveDependencies = (initialData: ChryssoProcessedConfig) => {
+  const processQueue = Object.entries(initialData)
 
-  return obj
-}
+  // Not very nice - accessing resolvedConflict works as usual, accessing errorThrowingResolvedConfig throws an error
+  // if the field doesn't exist <<in the same object>>.
 
-const get = (target, prop, receiver) => {
-  const value = target[prop]
+  const resolvedConfig: ChryssoProcessedConfig = {}
+  const errorThrowingResolvedConfig = createThrowIfEmptyFieldObject(resolvedConfig)
 
-  if (target[COUNTER_FIELD_NAME] === target[OBJECT_LENGTH_FIELD_NAME]) {
+  let cycleDetect = 0;
+
+  while (processQueue.length && cycleDetect <= processQueue.length) {
+    const currentPair = processQueue.shift()
+
+    try {
+      const [name, value] = currentPair
+      
+      const resolvedName = isDerivative(name) ? name(errorThrowingResolvedConfig) : name
+      const resolvedValue = isDerivative(value) ? value(errorThrowingResolvedConfig) : value
+      resolvedConfig[resolvedName] = resolvedValue
+
+      cycleDetect = 0
+    } catch(e) {
+      processQueue.push(currentPair)
+      cycleDetect += 1
+    }
+  }
+
+  if (cycleDetect) {
     throw new Error(circularDependencyError)
   }
-  if (prop === COUNTER_FIELD_NAME || prop === OBJECT_LENGTH_FIELD_NAME) {
-    return value
-  }
-  if (isDerivative(value)) {
-    target[COUNTER_FIELD_NAME] += 1
-    receiver[prop] = value(receiver)
-  }
-
-  target[COUNTER_FIELD_NAME] = 0
-
-  return target[prop]
-}
-
-const createLazyEvalObject = (startObj = {}) => new Proxy(initializeStarterObject(startObj), { get })
-
-// Object.values accesses all values. Value access from LazyEvalObject resolves it, so this resolved everything.
-const mutableResolveLazyEvalObject = (lazyEvalObj) => { Object.values(lazyEvalObj) }
-
-export const resolveDependencies = (starterObj: ChryssoProcessedConfig) => {
-  const lazyEvalObj = createLazyEvalObject(starterObj)
-  mutableResolveLazyEvalObject(lazyEvalObj)
-
-  return { ...lazyEvalObj }
+  
+  return { ...resolvedConfig } as ChryssoConfig
 }
