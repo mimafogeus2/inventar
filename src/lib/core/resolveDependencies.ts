@@ -1,4 +1,4 @@
-import { ChryssoConfig, ChryssoProcessedConfig } from '../../types'
+import { ChryssoConfig, ChryssoProcessedConfig, ChryssoProcessedConfigTuples } from '../../types'
 import { circularDependencyError } from '../errors'
 import { isDerivative } from '../utils'
 
@@ -11,12 +11,11 @@ const createThrowIfEmptyFieldObject = (starterObject = {}) => new Proxy(starterO
   }
 })
 
-export const resolveDependencies = (initialData: ChryssoProcessedConfig) => {
-  const processQueue = Object.entries(initialData)
+export const resolveDependencies = (initialData: ChryssoProcessedConfigTuples) => {
+  const processQueue = [...initialData]
 
   // Not very nice - accessing resolvedConflict works as usual, accessing errorThrowingResolvedConfig throws an error
   // if the field doesn't exist <<in the same object>>.
-
   const resolvedConfig: ChryssoProcessedConfig = {}
   const errorThrowingResolvedConfig = createThrowIfEmptyFieldObject(resolvedConfig)
 
