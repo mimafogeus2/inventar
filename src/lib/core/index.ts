@@ -1,4 +1,4 @@
-import { ChryssoConfig, ChryssoOptions, ChryssoRawConfig, ChryssoBoundInjector } from '../../types'
+import { ChryssoBoundInjector, ChryssoConfig, ChryssoOptions, ChryssoRawConfig } from '../../types'
 import { mergeOptionsWithDefaults } from '../utils'
 import { resolveDependencies } from './resolveDependencies'
 

@@ -1,39 +1,39 @@
-import { ChryssoRawConfig, ChryssoOptions, ChryssoConfig, ChryssoBoundInjector } from '../types'
-import { resolveConfig, config2CssVars } from './core'
+import { ChryssoBoundInjector, ChryssoConfig, ChryssoOptions, ChryssoRawConfig } from '../types'
+import { config2CssVars, resolveConfig } from './core'
 
 export class Chrysso {
-  private _rawConfig: ChryssoRawConfig
-  private _options: ChryssoOptions
-  private _resolvedConfig: Readonly<ChryssoConfig>
-  private _resolvedCssVars: Readonly<ChryssoConfig>
-  private _injectFunction: ChryssoBoundInjector
+  private rawConfig: ChryssoRawConfig
+  private options: ChryssoOptions
+  private resolvedConfig: Readonly<ChryssoConfig>
+  private resolvedCssVars: Readonly<ChryssoConfig>
+  private injectFunction: ChryssoBoundInjector
 
   constructor(rawConfig: ChryssoRawConfig, options: any) {
-    this._rawConfig = rawConfig
-    this._options = options
-    this.update(this._rawConfig)
+    this.rawConfig = rawConfig
+    this.options = options
+    this.update(this.rawConfig)
   }
 
-  update(rawConfig: ChryssoRawConfig) {
-    this._rawConfig = rawConfig
-    this._resolvedConfig = resolveConfig(this._rawConfig)
+  public update(rawConfig: ChryssoRawConfig): void {
+    this.rawConfig = rawConfig
+    this.resolvedConfig = resolveConfig(this.rawConfig)
 
-    const { cssVars, inject } = config2CssVars(this._resolvedConfig, this._options)
-    this._resolvedCssVars = cssVars
-    this._injectFunction = inject
+    const { cssVars, inject } = config2CssVars(this.resolvedConfig, this.options)
+    this.resolvedCssVars = cssVars
+    this.injectFunction = inject
 
-    this._options.onUpdate(this._resolvedConfig, this._resolvedCssVars, inject)
+    this.options.onUpdate(this.resolvedConfig, this.resolvedCssVars, inject)
   }
 
-  getConfig() {
-    return this._resolvedConfig
+  public getConfig(): Readonly<ChryssoConfig> {
+    return this.resolvedConfig
   }
 
-  getCssVars() {
-    return this._resolvedCssVars
+  public getCssVars(): Readonly<ChryssoConfig> {
+    return this.resolvedCssVars
   }
 
-  inject(domEl: HTMLElement) {
-    this._injectFunction(domEl)
+  public inject(domEl: HTMLElement): void {
+    this.injectFunction(domEl)
   }
 }

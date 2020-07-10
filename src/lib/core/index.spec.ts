@@ -1,6 +1,6 @@
 import test from 'ava';
 
-import { resolveConfig, config2CssVars } from '.'
+import { config2CssVars, resolveConfig } from '.'
 
 const SIMPLE_CONFIG = { color: '#f00', anotherColor: () => '#0f0' }
 const SIMPLE_RESOLVED_CONFIG = { primaryColor: '#f00' }
