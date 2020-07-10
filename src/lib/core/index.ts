@@ -1,11 +1,9 @@
-import { ChryssoRawConfig, ChryssoOptions, ChryssoConfig, ChryssoBoundInjector } from '../../types'
+import { ChryssoConfig, ChryssoOptions, ChryssoRawConfig, ChryssoBoundInjector } from '../../types'
 import { mergeOptionsWithDefaults } from '../utils'
-import { processConfig } from './processConfig'
 import { resolveDependencies } from './resolveDependencies'
 
 export const resolveConfig = (rawConfig: ChryssoRawConfig) => {
-  const processedConfig = processConfig(rawConfig)
-  const resolvedConfig = resolveDependencies(processedConfig)
+  const resolvedConfig = resolveDependencies(rawConfig)
 
   return Object.freeze(resolvedConfig)
 }
