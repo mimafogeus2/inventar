@@ -3,7 +3,7 @@ export type ChryssoRawValueField = ChryssoValue | ChryssoDerivativeValue
 export type ChryssoDerivativeValue<T = ChryssoValue> = (config: ChryssoConfig) => T
 export type ChryssoDerivativeName = ChryssoDerivativeValue<string>
 export type ChryssoRawConfigValue = ChryssoRawValueField | ChryssoRawValueObject
-export type ChryssoRawValueObject = { value: ChryssoRawValueField, processors?: ChryssoProcessor[] }
+export interface ChryssoRawValueObject { value: ChryssoRawValueField, processors?: ChryssoProcessor[] }
 export type ChryssoProcessedString = string | ChryssoDerivativeName
 export type ChryssoValueTuple = [string, ChryssoValue]
 
@@ -17,7 +17,7 @@ export type ChryssoBoundInjector = (domEl: HTMLElement) => void
 export type ChryssoRawConfig = Record<string, ChryssoRawConfigValue>
 export type ChryssoConfig = Record<string, ChryssoValue>
 
-export type ChryssoOptions = {
+export interface ChryssoOptions {
   js2CssNameFormatter?: (jsName: string) => string,
   cssVarsInjector?: ChryssoInjector,
   onUpdate?: (config: ChryssoConfig, cssVars: ChryssoConfig, inject: ChryssoBoundInjector) => void,
