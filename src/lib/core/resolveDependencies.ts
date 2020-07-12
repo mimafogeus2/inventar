@@ -1,5 +1,6 @@
 import {
   ChryssoConfig,
+  ChryssoOptions,
   ChryssoProcessedString,
   ChryssoProcessor,
   ChryssoRawConfig,
@@ -42,7 +43,11 @@ const resolveTuple = (config: ChryssoConfig, name: ChryssoProcessedString, value
   [resolve(config, name), resolve(config, value)]
 )
 
-export const resolveDependencies = (initialData: ChryssoRawConfig) => {
+export const resolveDependencies = (initialData: ChryssoRawConfig, options?: ChryssoOptions) => {
+  const preProcessors = options?.preProcessors || []
+  const postProcessors = options?.postProcessors || []
+  const doesGlobalProcessorsExist = !!(preProcessors?.length || postProcessors.length)
+
   const processQueue = Object.entries(initialData)
 
   // Not very nice - accessing resolvedConflict works as usual, accessing errorThrowingResolvedConfig throws an error
@@ -59,9 +64,11 @@ export const resolveDependencies = (initialData: ChryssoRawConfig) => {
     const value = isValueConfig(rawValue) ? rawValue.value : rawValue
 
     try {
-      if (isValueConfig(rawValue)) {
+      if (doesGlobalProcessorsExist || isValueConfig(rawValue)) {
         const resolvedTuple = resolveWithConfig(name, value)
-        const processedValues = createTuplesFromProcessors(resolvedTuple, rawValue?.processors)
+        const valueProcessors = (isValueConfig(rawValue) && rawValue.processors) || []
+        const allProcessors = [...preProcessors, ...valueProcessors, ...postProcessors]
+        const processedValues = createTuplesFromProcessors(resolvedTuple, allProcessors)
         const flattenedProcessedValues = flattenProcessedTuples(processedValues)
         flattenedProcessedValues.forEach(([newName, newValue]) => { resolvedConfig[newName] = newValue })
       } else {

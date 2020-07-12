@@ -25,6 +25,11 @@ const MULTIPLE_VALUES_OUTPUT_MULTIPLE_PROCESSORS_CONFIG: ChryssoRawConfig = {
   a: { value: 123, processors: [duplicateValueProcessor, duplicateValueProcessor] }
 }
 const DEPENDENCY_ON_PROCESSED_VALUE_CONFIG: ChryssoRawConfig = { a: config => config.b_b, b: { value: 123, processors: [repeatNameProcessor]}}
+const SIMPLE_MULTIPLE_VALUES_CONFIG: ChryssoRawConfig = { a: 123, b: 234, c: 345 }
+
+const PRE_PROCESSOR_OPTIONS = { preProcessors: [multiplyProcessor] }
+const POST_PROCESSOR_OPTIONS = { postProcessors: [multiplyProcessor] }
+const PRE_AND_POST_PROCESSOR_OPTIONS = { preProcessors: [multiplyProcessor], postProcessors: [multiplyProcessor] }
 
 test('Simple resolve', (t) => {
   const obj = resolveDependencies(SIMPLE_CONFIG)
@@ -97,4 +102,19 @@ test('Multiple values from multiple processors resolve', (t) => {
 test('Dependency on processed value', (t) => {
   const obj = resolveDependencies(DEPENDENCY_ON_PROCESSED_VALUE_CONFIG)
   t.deepEqual(obj, { a: 123, b_b: 123 })
+})
+
+test('Pre-processor resolve', (t) => {
+  const obj = resolveDependencies(SIMPLE_MULTIPLE_VALUES_CONFIG, PRE_PROCESSOR_OPTIONS)
+  t.deepEqual(obj, { a: 246, b: 468, c: 690 })
+})
+
+test('Post-processor resolve', (t) => {
+  const obj = resolveDependencies(SIMPLE_MULTIPLE_VALUES_CONFIG, POST_PROCESSOR_OPTIONS)
+  t.deepEqual(obj, { a: 246, b: 468, c: 690 })
+})
+
+test('Pre-, value and post- processors resolve', (t) => {
+  const obj = resolveDependencies(SINGLE_PROCESSOR_CONFIG, PRE_AND_POST_PROCESSOR_OPTIONS)
+  t.deepEqual(obj, { a: 984 })
 })

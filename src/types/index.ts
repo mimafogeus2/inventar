@@ -21,4 +21,6 @@ export type ChryssoOptions = {
   js2CssNameFormatter?: (jsName: string) => string,
   cssVarsInjector?: ChryssoInjector,
   onUpdate?: (config: ChryssoConfig, cssVars: ChryssoConfig, inject: ChryssoBoundInjector) => void,
+  preProcessors?: ChryssoProcessor[],
+  postProcessors?: ChryssoProcessor[],
 }
