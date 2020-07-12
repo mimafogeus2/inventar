@@ -2,13 +2,16 @@ import {
   ChryssoConfig,
   ChryssoOptions,
   ChryssoProcessedString,
-  ChryssoProcessor,
+  ChryssoProcessors,
   ChryssoRawConfig,
   ChryssoRawConfigValue,
+  ChryssoTest,
   ChryssoValueTuple,
 } from '../../types'
 import { fieldDoesntExistYetError, ResolveError } from '../errors'
-import { isDerivative, isValueConfig, isValueTuple } from '../utils'
+import { isDerivative, isProcessorConfig, isTestFunction, isValueConfig, isValueTuple } from '../utils'
+
+const FILTER_NONE_REGEXP = /.*/
 
 const createThrowIfEmptyFieldObject = (starterObject = {}) => new Proxy(starterObject, {
   get: (target, prop) => {
@@ -19,11 +22,21 @@ const createThrowIfEmptyFieldObject = (starterObject = {}) => new Proxy(starterO
   }
 })
 
-const createTuplesFromProcessors = (valueTuple: ChryssoValueTuple, [processor, ...restOfProcessors]: ChryssoProcessor[] = []) => (
-  processor
-    ? processor(valueTuple).map(newTuple => createTuplesFromProcessors(newTuple, restOfProcessors))
-    : [valueTuple]
+const testTuple = (tester: ChryssoTest, tuple: ChryssoValueTuple) => (
+  isTestFunction(tester) ? tester(tuple) : tester.test(String(tuple[0]))
 )
+
+const createTuplesFromProcessors = (valueTuple: ChryssoValueTuple, [currentProcessor, ...restOfProcessors]: ChryssoProcessors = []) => {
+  if (!currentProcessor) {
+    return [valueTuple]
+  }
+
+  const processorFunction = isProcessorConfig(currentProcessor) ? currentProcessor.processor : currentProcessor
+  const processorTest = (isProcessorConfig(currentProcessor) && currentProcessor.test) || FILTER_NONE_REGEXP
+  return testTuple(processorTest, valueTuple)
+    ? processorFunction(valueTuple).map(newTuple => createTuplesFromProcessors(newTuple, restOfProcessors))
+    : [valueTuple]
+}
 
  const flattenProcessedTuples = (tuples, aggregator = []) => (
    tuples.reduce((agg, item) => {

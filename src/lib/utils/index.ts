@@ -2,7 +2,10 @@ import {
   ChryssoConfig,
   ChryssoDerivativeValue,
   ChryssoOptions,
+  ChryssoProcessor,
+  ChryssoProcessorConfig,
   ChryssoRawValueObject,
+  ChryssoTestFunction,
   ChryssoValue,
   ChryssoValueTuple,
 } from '../../types'
@@ -31,3 +34,6 @@ export const isValueTuple = (val?: any): val is ChryssoValueTuple => val?.constr
   && val.length === 2
   && isFieldName(val[0])
   && isValue(val[1])
+export const isProcessor = (val?: any): val is ChryssoProcessor => val?.constructor === Function
+export const isProcessorConfig = (val?: any): val is ChryssoProcessorConfig => isProcessor(val?.processor)
+export const isTestFunction = (val?: any): val is ChryssoTestFunction => val?.constructor === Function

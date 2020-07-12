@@ -3,12 +3,18 @@ export type ChryssoRawValueField = ChryssoValue | ChryssoDerivativeValue
 export type ChryssoDerivativeValue<T = ChryssoValue> = (config: ChryssoConfig) => T
 export type ChryssoDerivativeName = ChryssoDerivativeValue<string>
 export type ChryssoRawConfigValue = ChryssoRawValueField | ChryssoRawValueObject
-export interface ChryssoRawValueObject { value: ChryssoRawValueField, processors?: ChryssoProcessor[] }
+export interface ChryssoRawValueObject { value: ChryssoRawValueField, processors?: ChryssoProcessors }
 export type ChryssoProcessedString = string | ChryssoDerivativeName
 export type ChryssoValueTuple = [string, ChryssoValue]
 
 // A processor modifies a config name and value pair to one or more new config and value pairs.
 export type ChryssoProcessor = (tuple: ChryssoValueTuple) => ChryssoValueTuple[]
+export interface ChryssoProcessorConfig { processor: ChryssoProcessor, test?: ChryssoTest }
+export type ChryssoProcessors = Array<ChryssoProcessor | ChryssoProcessorConfig>
+
+// Tests allow to define what fields a global processor runs on
+export type ChryssoTestFunction = (tuple: ChryssoValueTuple) => boolean
+export type ChryssoTest = ChryssoTestFunction | RegExp
 
 // An injector function injects formatted config data to a DOM element (e.g. CSS variables).
 export type ChryssoInjector = (formattedConfig: ChryssoConfig, domEl: HTMLElement) => void
@@ -21,6 +27,6 @@ export interface ChryssoOptions {
   js2CssNameFormatter?: (jsName: string) => string,
   cssVarsInjector?: ChryssoInjector,
   onUpdate?: (config: ChryssoConfig, cssVars: ChryssoConfig, inject: ChryssoBoundInjector) => void,
-  preProcessors?: ChryssoProcessor[],
-  postProcessors?: ChryssoProcessor[],
+  preProcessors?: ChryssoProcessors,
+  postProcessors?: ChryssoProcessors,
 }
