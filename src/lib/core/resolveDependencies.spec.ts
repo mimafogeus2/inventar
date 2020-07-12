@@ -1,7 +1,7 @@
 import test from 'ava';
 
 import { ChryssoProcessor, ChryssoRawConfig } from '../../types'
-import { circularDependencyError } from '../errors'
+import { ResolveError } from '../errors'
 import { resolveDependencies } from './resolveDependencies'
 
 const multiplyProcessor: ChryssoProcessor = ([name, value]: [string, number]) => [[name, value * 2]] // return derivatives instead
@@ -14,6 +14,7 @@ const DEPENDENCY_CONFIG: ChryssoRawConfig = { a: 123, b: config => config.a }
 const DEEP_DEPENDENCY_CONFIG: ChryssoRawConfig = { a: 123, b: config => config.a, c: config => config.b }
 const MULTIPLE_DEPENDENCY_CONFIG: ChryssoRawConfig = { a: 1, b: 2, c: config => (config.a as number) + (config.b as number) }
 const CIRCULAR_DEPENDENCY_CONFIG: ChryssoRawConfig = { a: config => config.b, b: config => config.a }
+const UNDEFINED_FIELD_REFERENCE_CONFIG: ChryssoRawConfig = { a: config => config.b }
 const VALUE_OBJECT_NO_PROCESSORS_CONFIG: ChryssoRawConfig = { a: { value: 123 } }
 const EMPTY_PROCESSOR_ARRAY_CONFIG: ChryssoRawConfig = { a: { value: 123, processors: [] } }
 const SINGLE_PROCESSOR_CONFIG: ChryssoRawConfig = { a: { value: 123, processors: [multiplyProcessor] } }
@@ -56,7 +57,12 @@ test('Multiple dependency resolve', (t) => {
 
 test('Circular dependency resolve', (t) => {
   setTimeout(() => t.fail(), 1000)
-  t.throws(() => resolveDependencies(CIRCULAR_DEPENDENCY_CONFIG), circularDependencyError())
+  t.throws(() => resolveDependencies(CIRCULAR_DEPENDENCY_CONFIG), ResolveError())
+})
+
+test('Undefined field reference resolve', (t) => {
+  setTimeout(() => t.fail(), 1000)
+  t.throws(() => resolveDependencies(UNDEFINED_FIELD_REFERENCE_CONFIG), ResolveError())
 })
 
 test('Value object with no processors array resolve', (t) => {

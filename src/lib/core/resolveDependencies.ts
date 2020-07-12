@@ -7,7 +7,7 @@ import {
   ChryssoRawConfigValue,
   ChryssoValueTuple,
 } from '../../types'
-import { circularDependencyError, fieldDoesntExistYetError } from '../errors'
+import { fieldDoesntExistYetError, ResolveError } from '../errors'
 import { isDerivative, isValueConfig, isValueTuple } from '../utils'
 
 const createThrowIfEmptyFieldObject = (starterObject = {}) => new Proxy(starterObject, {
@@ -85,7 +85,7 @@ export const resolveDependencies = (initialData: ChryssoRawConfig, options?: Chr
   }
 
   if (cycleDetect) {
-    throw new Error(circularDependencyError())
+    throw new Error(ResolveError())
   }
   
   return { ...resolvedConfig } as ChryssoConfig
