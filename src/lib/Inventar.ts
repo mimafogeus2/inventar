@@ -1,20 +1,20 @@
-import { ChryssoBoundInjector, ChryssoConfig, ChryssoOptions, ChryssoRawConfig } from '../types'
+import { InventarBoundInjector, InventarConfig, InventarOptions, InventarRawConfig } from '../types'
 import { config2CssVars, resolveConfig } from './core'
 
-export class Chrysso {
-  private rawConfig: ChryssoRawConfig
-  private options: ChryssoOptions
-  private resolvedConfig: Readonly<ChryssoConfig>
-  private resolvedCssVars: Readonly<ChryssoConfig>
-  private injectFunction: ChryssoBoundInjector
+export class Inventar {
+  private rawConfig: InventarRawConfig
+  private options: InventarOptions
+  private resolvedConfig: Readonly<InventarConfig>
+  private resolvedCssVars: Readonly<InventarConfig>
+  private injectFunction: InventarBoundInjector
 
-  constructor(rawConfig: ChryssoRawConfig, options: any) {
+  constructor(rawConfig: InventarRawConfig, options: any) {
     this.rawConfig = rawConfig
     this.options = options
     this.update(this.rawConfig)
   }
 
-  public update(rawConfig: ChryssoRawConfig): void {
+  public update(rawConfig: InventarRawConfig): void {
     this.rawConfig = rawConfig
     this.resolvedConfig = resolveConfig(this.rawConfig)
 
@@ -25,11 +25,11 @@ export class Chrysso {
     this.options.onUpdate(this.resolvedConfig, this.resolvedCssVars, inject)
   }
 
-  public getConfig(): Readonly<ChryssoConfig> {
+  public getConfig(): Readonly<InventarConfig> {
     return this.resolvedConfig
   }
 
-  public getCssVars(): Readonly<ChryssoConfig> {
+  public getCssVars(): Readonly<InventarConfig> {
     return this.resolvedCssVars
   }
 

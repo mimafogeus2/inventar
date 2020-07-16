@@ -1,12 +1,12 @@
 import {
-  ChryssoConfig,
-  ChryssoOptions,
-  ChryssoProcessedString,
-  ChryssoProcessors,
-  ChryssoRawConfig,
-  ChryssoRawConfigValue,
-  ChryssoTest,
-  ChryssoValueTuple,
+  InventarConfig,
+  InventarOptions,
+  InventarProcessedString,
+  InventarProcessors,
+  InventarRawConfig,
+  InventarRawConfigValue,
+  InventarTest,
+  InventarValueTuple,
 } from '../../types'
 import { fieldDoesntExistYetError, ResolveError } from '../errors'
 import { isDerivative, isProcessorConfig, isTestFunction, isValueConfig, isValueTuple } from '../utils'
@@ -22,11 +22,11 @@ const createThrowIfEmptyFieldObject = (starterObject = {}) => new Proxy(starterO
   }
 })
 
-const testTuple = (tester: ChryssoTest, tuple: ChryssoValueTuple) => (
+const testTuple = (tester: InventarTest, tuple: InventarValueTuple) => (
   isTestFunction(tester) ? tester(tuple) : tester.test(String(tuple[0]))
 )
 
-const createTuplesFromProcessors = (valueTuple: ChryssoValueTuple, [currentProcessor, ...restOfProcessors]: ChryssoProcessors = []) => {
+const createTuplesFromProcessors = (valueTuple: InventarValueTuple, [currentProcessor, ...restOfProcessors]: InventarProcessors = []) => {
   if (!currentProcessor) {
     return [valueTuple]
   }
@@ -49,14 +49,14 @@ const createTuplesFromProcessors = (valueTuple: ChryssoValueTuple, [currentProce
    }, aggregator)
  )
 
-const resolve = (config: ChryssoConfig, value: ChryssoRawConfigValue | ChryssoProcessedString) => (
+const resolve = (config: InventarConfig, value: InventarRawConfigValue | InventarProcessedString) => (
   isDerivative(value) ? value(config) : value
 )
-const resolveTuple = (config: ChryssoConfig, name: ChryssoProcessedString, value: ChryssoRawConfigValue) => (
+const resolveTuple = (config: InventarConfig, name: InventarProcessedString, value: InventarRawConfigValue) => (
   [resolve(config, name), resolve(config, value)]
 )
 
-export const resolveDependencies = (initialData: ChryssoRawConfig, options?: ChryssoOptions) => {
+export const resolveDependencies = (initialData: InventarRawConfig, options?: InventarOptions) => {
   const preProcessors = options?.preProcessors || []
   const postProcessors = options?.postProcessors || []
   const doesGlobalProcessorsExist = !!(preProcessors?.length || postProcessors.length)
@@ -65,7 +65,7 @@ export const resolveDependencies = (initialData: ChryssoRawConfig, options?: Chr
 
   // Not very nice - accessing resolvedConflict works as usual, accessing errorThrowingResolvedConfig throws an error
   // if the field doesn't exist <<in the same object>>.
-  const resolvedConfig: ChryssoConfig = {}
+  const resolvedConfig: InventarConfig = {}
   const errorThrowingResolvedConfig = createThrowIfEmptyFieldObject(resolvedConfig)
   const resolveWithConfig = resolveTuple.bind(null, errorThrowingResolvedConfig)
 
@@ -101,5 +101,5 @@ export const resolveDependencies = (initialData: ChryssoRawConfig, options?: Chr
     throw new Error(ResolveError())
   }
   
-  return { ...resolvedConfig } as ChryssoConfig
+  return { ...resolvedConfig } as InventarConfig
 }

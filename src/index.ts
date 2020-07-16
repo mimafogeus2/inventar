@@ -1,4 +1,4 @@
-import { Chrysso } from './lib/Chrysso'
+import { Inventar } from './lib/Inventar'
 
 // Exports go here
-export default Chrysso
+export default Inventar

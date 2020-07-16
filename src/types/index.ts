@@ -1,32 +1,32 @@
-export type ChryssoValue = string | number
-export type ChryssoRawValueField = ChryssoValue | ChryssoDerivativeValue
-export type ChryssoDerivativeValue<T = ChryssoValue> = (config: ChryssoConfig) => T
-export type ChryssoDerivativeName = ChryssoDerivativeValue<string>
-export type ChryssoRawConfigValue = ChryssoRawValueField | ChryssoRawValueObject
-export interface ChryssoRawValueObject { value: ChryssoRawValueField, processors?: ChryssoProcessors }
-export type ChryssoProcessedString = string | ChryssoDerivativeName
-export type ChryssoValueTuple = [string, ChryssoValue]
+export type InventarValue = string | number
+export type InventarRawValueField = InventarValue | InventarDerivativeValue
+export type InventarDerivativeValue<T = InventarValue> = (config: InventarConfig) => T
+export type InventarDerivativeName = InventarDerivativeValue<string>
+export type InventarRawConfigValue = InventarRawValueField | InventarRawValueObject
+export interface InventarRawValueObject { value: InventarRawValueField, processors?: InventarProcessors }
+export type InventarProcessedString = string | InventarDerivativeName
+export type InventarValueTuple = [string, InventarValue]
 
 // A processor modifies a config name and value pair to one or more new config and value pairs.
-export type ChryssoProcessor = (tuple: ChryssoValueTuple) => ChryssoValueTuple[]
-export interface ChryssoProcessorConfig { processor: ChryssoProcessor, test?: ChryssoTest }
-export type ChryssoProcessors = Array<ChryssoProcessor | ChryssoProcessorConfig>
+export type InventarProcessor = (tuple: InventarValueTuple) => InventarValueTuple[]
+export interface InventarProcessorConfig { processor: InventarProcessor, test?: InventarTest }
+export type InventarProcessors = Array<InventarProcessor | InventarProcessorConfig>
 
 // Tests allow to define what fields a global processor runs on
-export type ChryssoTestFunction = (tuple: ChryssoValueTuple) => boolean
-export type ChryssoTest = ChryssoTestFunction | RegExp
+export type InventarTestFunction = (tuple: InventarValueTuple) => boolean
+export type InventarTest = InventarTestFunction | RegExp
 
 // An injector function injects formatted config data to a DOM element (e.g. CSS variables).
-export type ChryssoInjector = (formattedConfig: ChryssoConfig, domEl: HTMLElement) => void
-export type ChryssoBoundInjector = (domEl: HTMLElement) => void
+export type InventarInjector = (formattedConfig: InventarConfig, domEl: HTMLElement) => void
+export type InventarBoundInjector = (domEl: HTMLElement) => void
 
-export type ChryssoRawConfig = Record<string, ChryssoRawConfigValue>
-export type ChryssoConfig = Record<string, ChryssoValue>
+export type InventarRawConfig = Record<string, InventarRawConfigValue>
+export type InventarConfig = Record<string, InventarValue>
 
-export interface ChryssoOptions {
+export interface InventarOptions {
   js2CssNameFormatter?: (jsName: string) => string,
-  cssVarsInjector?: ChryssoInjector,
-  onUpdate?: (config: ChryssoConfig, cssVars: ChryssoConfig, inject: ChryssoBoundInjector) => void,
-  preProcessors?: ChryssoProcessors,
-  postProcessors?: ChryssoProcessors,
+  cssVarsInjector?: InventarInjector,
+  onUpdate?: (config: InventarConfig, cssVars: InventarConfig, inject: InventarBoundInjector) => void,
+  preProcessors?: InventarProcessors,
+  postProcessors?: InventarProcessors,
 }

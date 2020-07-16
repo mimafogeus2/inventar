@@ -1,33 +1,33 @@
 import test from 'ava';
 
-import { ChryssoProcessor, ChryssoRawConfig } from '../../types'
+import { InventarProcessor, InventarRawConfig } from '../../types'
 import { ResolveError } from '../errors'
 import { resolveDependencies } from './resolveDependencies'
 
-const multiplyProcessor: ChryssoProcessor = ([name, value]: [string, number]) => [[name, value * 2]] // return derivatives instead
-const repeatNameProcessor: ChryssoProcessor = ([name, value]) => [[`${name}_${name}`, value]]
-const appendValueToNameProcessor: ChryssoProcessor = ([name, value]) => [[`${name}_${value}`, value]]
-const duplicateValueProcessor: ChryssoProcessor = ([name, value]) => [[`${name}_1`, value], [`${name}_2`, value]]
+const multiplyProcessor: InventarProcessor = ([name, value]: [string, number]) => [[name, value * 2]] // return derivatives instead
+const repeatNameProcessor: InventarProcessor = ([name, value]) => [[`${name}_${name}`, value]]
+const appendValueToNameProcessor: InventarProcessor = ([name, value]) => [[`${name}_${value}`, value]]
+const duplicateValueProcessor: InventarProcessor = ([name, value]) => [[`${name}_1`, value], [`${name}_2`, value]]
 
-const SIMPLE_CONFIG: ChryssoRawConfig = { a: 123 }
-const SIMPLE_MULTIPLE_VALUES_CONFIG: ChryssoRawConfig = { a: 123, b: 234, c: 345 }
-const DEPENDENCY_CONFIG: ChryssoRawConfig = { a: 123, b: config => config.a }
-const DEEP_DEPENDENCY_CONFIG: ChryssoRawConfig = { a: 123, b: config => config.a, c: config => config.b }
-const MULTIPLE_DEPENDENCY_CONFIG: ChryssoRawConfig = { a: 1, b: 2, c: config => (config.a as number) + (config.b as number) }
-const CIRCULAR_DEPENDENCY_CONFIG: ChryssoRawConfig = { a: config => config.b, b: config => config.a }
-const UNDEFINED_FIELD_REFERENCE_CONFIG: ChryssoRawConfig = { a: config => config.b }
-const VALUE_OBJECT_NO_PROCESSORS_CONFIG: ChryssoRawConfig = { a: { value: 123 } }
-const EMPTY_PROCESSOR_ARRAY_CONFIG: ChryssoRawConfig = { a: { value: 123, processors: [] } }
-const SINGLE_PROCESSOR_CONFIG: ChryssoRawConfig = { a: { value: 123, processors: [multiplyProcessor] } }
-const MULTIPLE_PROCESSORS_CONFIG: ChryssoRawConfig = { a: { value: 123, processors: [multiplyProcessor, multiplyProcessor] } }
-const NAME_PROCESSOR_CONFIG: ChryssoRawConfig = { a: { value: 123, processors: [repeatNameProcessor] }}
-const NAME_FROM_VALUE_PROCESSOR_CONFIG: ChryssoRawConfig = { a: { value: 123, processors: [appendValueToNameProcessor] }}
-const MULTIPLE_VALUES_OUTPUT_PROCESSOR_CONFIG: ChryssoRawConfig = { a: { value: 123, processors: [duplicateValueProcessor] }}
-const MULTIPLE_VALUES_OUTPUT_MULTIPLE_PROCESSORS_CONFIG: ChryssoRawConfig = {
+const SIMPLE_CONFIG: InventarRawConfig = { a: 123 }
+const SIMPLE_MULTIPLE_VALUES_CONFIG: InventarRawConfig = { a: 123, b: 234, c: 345 }
+const DEPENDENCY_CONFIG: InventarRawConfig = { a: 123, b: config => config.a }
+const DEEP_DEPENDENCY_CONFIG: InventarRawConfig = { a: 123, b: config => config.a, c: config => config.b }
+const MULTIPLE_DEPENDENCY_CONFIG: InventarRawConfig = { a: 1, b: 2, c: config => (config.a as number) + (config.b as number) }
+const CIRCULAR_DEPENDENCY_CONFIG: InventarRawConfig = { a: config => config.b, b: config => config.a }
+const UNDEFINED_FIELD_REFERENCE_CONFIG: InventarRawConfig = { a: config => config.b }
+const VALUE_OBJECT_NO_PROCESSORS_CONFIG: InventarRawConfig = { a: { value: 123 } }
+const EMPTY_PROCESSOR_ARRAY_CONFIG: InventarRawConfig = { a: { value: 123, processors: [] } }
+const SINGLE_PROCESSOR_CONFIG: InventarRawConfig = { a: { value: 123, processors: [multiplyProcessor] } }
+const MULTIPLE_PROCESSORS_CONFIG: InventarRawConfig = { a: { value: 123, processors: [multiplyProcessor, multiplyProcessor] } }
+const NAME_PROCESSOR_CONFIG: InventarRawConfig = { a: { value: 123, processors: [repeatNameProcessor] }}
+const NAME_FROM_VALUE_PROCESSOR_CONFIG: InventarRawConfig = { a: { value: 123, processors: [appendValueToNameProcessor] }}
+const MULTIPLE_VALUES_OUTPUT_PROCESSOR_CONFIG: InventarRawConfig = { a: { value: 123, processors: [duplicateValueProcessor] }}
+const MULTIPLE_VALUES_OUTPUT_MULTIPLE_PROCESSORS_CONFIG: InventarRawConfig = {
   a: { value: 123, processors: [duplicateValueProcessor, duplicateValueProcessor] }
 }
-const DEPENDENCY_ON_PROCESSED_VALUE_CONFIG: ChryssoRawConfig = { a: config => config.b_b, b: { value: 123, processors: [repeatNameProcessor]}}
-const PROCESSOR_CONFIG_CONFIG: ChryssoRawConfig = { a: { value: 123, processors: [{ processor: multiplyProcessor }]} }
+const DEPENDENCY_ON_PROCESSED_VALUE_CONFIG: InventarRawConfig = { a: config => config.b_b, b: { value: 123, processors: [repeatNameProcessor]}}
+const PROCESSOR_CONFIG_CONFIG: InventarRawConfig = { a: { value: 123, processors: [{ processor: multiplyProcessor }]} }
 
 const PRE_PROCESSOR_OPTIONS = { preProcessors: [multiplyProcessor] }
 const POST_PROCESSOR_OPTIONS = { postProcessors: [multiplyProcessor] }

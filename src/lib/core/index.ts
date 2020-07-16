@@ -1,14 +1,14 @@
-import { ChryssoBoundInjector, ChryssoConfig, ChryssoOptions, ChryssoRawConfig } from '../../types'
+import { InventarBoundInjector, InventarConfig, InventarOptions, InventarRawConfig } from '../../types'
 import { mergeOptionsWithDefaults } from '../utils'
 import { resolveDependencies } from './resolveDependencies'
 
-export const resolveConfig = (rawConfig: ChryssoRawConfig) => {
+export const resolveConfig = (rawConfig: InventarRawConfig) => {
   const resolvedConfig = resolveDependencies(rawConfig)
 
   return Object.freeze(resolvedConfig)
 }
 
-export const config2CssVars = (config: ChryssoConfig, options: ChryssoOptions = {}) => {
+export const config2CssVars = (config: InventarConfig, options: InventarOptions = {}) => {
   const { js2CssNameFormatter, cssVarsInjector } = mergeOptionsWithDefaults(options)
 
   const resolvedCssVars = Object.entries(config).reduce(
@@ -17,10 +17,10 @@ export const config2CssVars = (config: ChryssoConfig, options: ChryssoOptions = 
       agg[cssVarName] = value
       return agg
     },
-    {} as ChryssoConfig
+    {} as InventarConfig
   )
 
-  const inject: ChryssoBoundInjector = cssVarsInjector.bind(null, resolvedCssVars)
+  const inject: InventarBoundInjector = cssVarsInjector.bind(null, resolvedCssVars)
 
   return {
     cssVars: Object.freeze(resolvedCssVars),
