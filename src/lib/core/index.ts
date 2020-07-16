@@ -20,7 +20,7 @@ export const config2CssVars = (config: ChryssoConfig, options: ChryssoOptions = 
     {} as ChryssoConfig
   )
 
-  const inject = cssVarsInjector.bind(null, resolvedCssVars) as ChryssoBoundInjector
+  const inject: ChryssoBoundInjector = cssVarsInjector.bind(null, resolvedCssVars)
 
   return {
     cssVars: Object.freeze(resolvedCssVars),
