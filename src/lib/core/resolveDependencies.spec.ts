@@ -1,39 +1,39 @@
 import test from 'ava';
 
-import { InventarProcessor, InventarRawConfig } from '../../types'
+import { InventarConfig, InventarTransformer } from '../../types'
 import { ResolveError } from '../errors'
 import { resolveDependencies } from './resolveDependencies'
 
-const multiplyProcessor: InventarProcessor = ([name, value]: [string, number]) => [[name, value * 2]] // return derivatives instead
-const repeatNameProcessor: InventarProcessor = ([name, value]) => [[`${name}_${name}`, value]]
-const appendValueToNameProcessor: InventarProcessor = ([name, value]) => [[`${name}_${value}`, value]]
-const duplicateValueProcessor: InventarProcessor = ([name, value]) => [[`${name}_1`, value], [`${name}_2`, value]]
+const multiplyTransformer: InventarTransformer = ([name, value]: [string, number]) => [[name, value * 2]] // return derivatives instead
+const repeatNameTransformer: InventarTransformer = ([name, value]) => [[`${name}_${name}`, value]]
+const appendValueToNameTransformer: InventarTransformer = ([name, value]) => [[`${name}_${value}`, value]]
+const duplicateValueTransformer: InventarTransformer = ([name, value]) => [[`${name}_1`, value], [`${name}_2`, value]]
 
-const SIMPLE_CONFIG: InventarRawConfig = { a: 123 }
-const SIMPLE_MULTIPLE_VALUES_CONFIG: InventarRawConfig = { a: 123, b: 234, c: 345 }
-const DEPENDENCY_CONFIG: InventarRawConfig = { a: 123, b: config => config.a }
-const DEEP_DEPENDENCY_CONFIG: InventarRawConfig = { a: 123, b: config => config.a, c: config => config.b }
-const MULTIPLE_DEPENDENCY_CONFIG: InventarRawConfig = { a: 1, b: 2, c: config => (config.a as number) + (config.b as number) }
-const CIRCULAR_DEPENDENCY_CONFIG: InventarRawConfig = { a: config => config.b, b: config => config.a }
-const UNDEFINED_FIELD_REFERENCE_CONFIG: InventarRawConfig = { a: config => config.b }
-const VALUE_OBJECT_NO_PROCESSORS_CONFIG: InventarRawConfig = { a: { value: 123 } }
-const EMPTY_PROCESSOR_ARRAY_CONFIG: InventarRawConfig = { a: { value: 123, processors: [] } }
-const SINGLE_PROCESSOR_CONFIG: InventarRawConfig = { a: { value: 123, processors: [multiplyProcessor] } }
-const MULTIPLE_PROCESSORS_CONFIG: InventarRawConfig = { a: { value: 123, processors: [multiplyProcessor, multiplyProcessor] } }
-const NAME_PROCESSOR_CONFIG: InventarRawConfig = { a: { value: 123, processors: [repeatNameProcessor] }}
-const NAME_FROM_VALUE_PROCESSOR_CONFIG: InventarRawConfig = { a: { value: 123, processors: [appendValueToNameProcessor] }}
-const MULTIPLE_VALUES_OUTPUT_PROCESSOR_CONFIG: InventarRawConfig = { a: { value: 123, processors: [duplicateValueProcessor] }}
-const MULTIPLE_VALUES_OUTPUT_MULTIPLE_PROCESSORS_CONFIG: InventarRawConfig = {
-  a: { value: 123, processors: [duplicateValueProcessor, duplicateValueProcessor] }
+const SIMPLE_CONFIG: InventarConfig = { a: 123 }
+const SIMPLE_MULTIPLE_VALUES_CONFIG: InventarConfig = { a: 123, b: 234, c: 345 }
+const DEPENDENCY_CONFIG: InventarConfig = { a: 123, b: config => config.a }
+const DEEP_DEPENDENCY_CONFIG: InventarConfig = { a: 123, b: config => config.a, c: config => config.b }
+const MULTIPLE_DEPENDENCY_CONFIG: InventarConfig = { a: 1, b: 2, c: config => (config.a as number) + (config.b as number) }
+const CIRCULAR_DEPENDENCY_CONFIG: InventarConfig = { a: config => config.b, b: config => config.a }
+const UNDEFINED_FIELD_REFERENCE_CONFIG: InventarConfig = { a: config => config.b }
+const VALUE_OBJECT_NO_TRANSFORMERS_CONFIG: InventarConfig = { a: { value: 123 } }
+const EMPTY_TRANSFORMER_ARRAY_CONFIG: InventarConfig = { a: { value: 123, transformers: [] } }
+const SINGLE_TRANSFORMER_CONFIG: InventarConfig = { a: { value: 123, transformers: [multiplyTransformer] } }
+const MULTIPLE_TRANSFORMERS_CONFIG: InventarConfig = { a: { value: 123, transformers: [multiplyTransformer, multiplyTransformer] } }
+const NAME_TRANSFORMER_CONFIG: InventarConfig = { a: { value: 123, transformers: [repeatNameTransformer] }}
+const NAME_FROM_VALUE_TRANSFORMER_CONFIG: InventarConfig = { a: { value: 123, transformers: [appendValueToNameTransformer] }}
+const MULTIPLE_VALUES_OUTPUT_TRANSFORMER_CONFIG: InventarConfig = { a: { value: 123, transformers: [duplicateValueTransformer] }}
+const MULTIPLE_VALUES_OUTPUT_MULTIPLE_TRANSFORMERS_CONFIG: InventarConfig = {
+  a: { value: 123, transformers: [duplicateValueTransformer, duplicateValueTransformer] }
 }
-const DEPENDENCY_ON_PROCESSED_VALUE_CONFIG: InventarRawConfig = { a: config => config.b_b, b: { value: 123, processors: [repeatNameProcessor]}}
-const PROCESSOR_CONFIG_CONFIG: InventarRawConfig = { a: { value: 123, processors: [{ processor: multiplyProcessor }]} }
+const DEPENDENCY_ON_TRANSFORMED_VALUE_CONFIG: InventarConfig = { a: config => config.b_b, b: { value: 123, transformers: [repeatNameTransformer]}}
+const TRANSFORMER_CONFIG_CONFIG: InventarConfig = { a: { value: 123, transformers: [{ transformer: multiplyTransformer }]} }
 
-const PRE_PROCESSOR_OPTIONS = { preProcessors: [multiplyProcessor] }
-const POST_PROCESSOR_OPTIONS = { postProcessors: [multiplyProcessor] }
-const PRE_AND_POST_PROCESSOR_OPTIONS = { preProcessors: [multiplyProcessor], postProcessors: [multiplyProcessor] }
-const PROCESSOR_CONFIG_TEST_FUNCTION_OPTIONS = { preProcessors: [{ processor: multiplyProcessor, test: tuple => tuple[0] !== 'c' } ]}
-const PROCESSOR_CONFIG_TEST_REGEXP_OPTIONS = { preProcessors: [{ processor: multiplyProcessor, test: /^[ab].*/ }] }
+const PRE_TRANSFORMER_OPTIONS = { preTransformers: [multiplyTransformer] }
+const POST_TRANSFORMER_OPTIONS = { postTransformers: [multiplyTransformer] }
+const PRE_AND_POST_TRANSFORMER_OPTIONS = { preTransformers: [multiplyTransformer], postTransformers: [multiplyTransformer] }
+const TRANSFORMER_CONFIG_TEST_FUNCTION_OPTIONS = { preTransformers: [{ transformer: multiplyTransformer, test: tuple => tuple[0] !== 'c' } ]}
+const TRANSFORMER_CONFIG_TEST_REGEXP_OPTIONS = { preTransformers: [{ transformer: multiplyTransformer, test: /^[ab].*/ }] }
 
 test('Simple resolve', (t) => {
   const obj = resolveDependencies(SIMPLE_CONFIG)
@@ -68,77 +68,77 @@ test('Undefined field reference resolve', (t) => {
   t.throws(() => resolveDependencies(UNDEFINED_FIELD_REFERENCE_CONFIG), ResolveError())
 })
 
-test('Value object with no processors array resolve', (t) => {
-  const obj = resolveDependencies(VALUE_OBJECT_NO_PROCESSORS_CONFIG)
+test('Value object with no transformers array resolve', (t) => {
+  const obj = resolveDependencies(VALUE_OBJECT_NO_TRANSFORMERS_CONFIG)
   t.is(obj.a, 123)
 })
 
-test('Empty processor array resolve', (t) => {
-  const obj = resolveDependencies(EMPTY_PROCESSOR_ARRAY_CONFIG)
+test('Empty transformer array resolve', (t) => {
+  const obj = resolveDependencies(EMPTY_TRANSFORMER_ARRAY_CONFIG)
   t.is(obj.a, 123)
 })
 
-test('Single processor resolve', (t) => {
-  const obj = resolveDependencies(SINGLE_PROCESSOR_CONFIG)
+test('Single transformer resolve', (t) => {
+  const obj = resolveDependencies(SINGLE_TRANSFORMER_CONFIG)
   t.is(obj.a, 246)
 })
 
-test('Multiple processors resolve', (t) => {
-  const obj = resolveDependencies(MULTIPLE_PROCESSORS_CONFIG)
+test('Multiple transformers resolve', (t) => {
+  const obj = resolveDependencies(MULTIPLE_TRANSFORMERS_CONFIG)
   t.is(obj.a, 492)
 })
 
-test('Name processor resolve', (t) => {
-  const obj = resolveDependencies(NAME_PROCESSOR_CONFIG)
+test('Name transformer resolve', (t) => {
+  const obj = resolveDependencies(NAME_TRANSFORMER_CONFIG)
   t.deepEqual(obj, { a_a: 123 })
 })
 
-test('Name derived from value processor resolve', (t) => {
-  const obj = resolveDependencies(NAME_FROM_VALUE_PROCESSOR_CONFIG)
+test('Name derived from value transformer resolve', (t) => {
+  const obj = resolveDependencies(NAME_FROM_VALUE_TRANSFORMER_CONFIG)
   t.deepEqual(obj, { a_123: 123 })
 })
 
-test('Multiple values from single processor resolve', (t) => {
-  const obj = resolveDependencies(MULTIPLE_VALUES_OUTPUT_PROCESSOR_CONFIG)
+test('Multiple values from single transformer resolve', (t) => {
+  const obj = resolveDependencies(MULTIPLE_VALUES_OUTPUT_TRANSFORMER_CONFIG)
   t.deepEqual(obj, { a_1: 123, a_2: 123 })
 })
 
-test('Multiple values from multiple processors resolve', (t) => {
-  const obj = resolveDependencies(MULTIPLE_VALUES_OUTPUT_MULTIPLE_PROCESSORS_CONFIG)
+test('Multiple values from multiple transformers resolve', (t) => {
+  const obj = resolveDependencies(MULTIPLE_VALUES_OUTPUT_MULTIPLE_TRANSFORMERS_CONFIG)
   t.deepEqual(obj, { a_1_1: 123, a_1_2: 123, a_2_1: 123, a_2_2: 123 })
 })
 
-test('Dependency on processed value', (t) => {
-  const obj = resolveDependencies(DEPENDENCY_ON_PROCESSED_VALUE_CONFIG)
+test('Dependency on transformed value', (t) => {
+  const obj = resolveDependencies(DEPENDENCY_ON_TRANSFORMED_VALUE_CONFIG)
   t.deepEqual(obj, { a: 123, b_b: 123 })
 })
 
-test('Simple processor config resolve', (t) => {
-  const obj = resolveDependencies(PROCESSOR_CONFIG_CONFIG)
+test('Simple transformer config resolve', (t) => {
+  const obj = resolveDependencies(TRANSFORMER_CONFIG_CONFIG)
   t.deepEqual(obj, { a: 246 })
 })
 
-test('Pre-processor resolve', (t) => {
-  const obj = resolveDependencies(SIMPLE_MULTIPLE_VALUES_CONFIG, PRE_PROCESSOR_OPTIONS)
+test('Pre-transformer resolve', (t) => {
+  const obj = resolveDependencies(SIMPLE_MULTIPLE_VALUES_CONFIG, PRE_TRANSFORMER_OPTIONS)
   t.deepEqual(obj, { a: 246, b: 468, c: 690 })
 })
 
-test('Post-processor resolve', (t) => {
-  const obj = resolveDependencies(SIMPLE_MULTIPLE_VALUES_CONFIG, POST_PROCESSOR_OPTIONS)
+test('Post-transformer resolve', (t) => {
+  const obj = resolveDependencies(SIMPLE_MULTIPLE_VALUES_CONFIG, POST_TRANSFORMER_OPTIONS)
   t.deepEqual(obj, { a: 246, b: 468, c: 690 })
 })
 
-test('Pre-, value and post- processors resolve', (t) => {
-  const obj = resolveDependencies(SINGLE_PROCESSOR_CONFIG, PRE_AND_POST_PROCESSOR_OPTIONS)
+test('Pre-, value and post- transformers resolve', (t) => {
+  const obj = resolveDependencies(SINGLE_TRANSFORMER_CONFIG, PRE_AND_POST_TRANSFORMER_OPTIONS)
   t.deepEqual(obj, { a: 984 })
 })
 
-test('Processor test function resolve', (t) => {
-  const obj = resolveDependencies(SIMPLE_MULTIPLE_VALUES_CONFIG, PROCESSOR_CONFIG_TEST_FUNCTION_OPTIONS)
+test('Transformer test function resolve', (t) => {
+  const obj = resolveDependencies(SIMPLE_MULTIPLE_VALUES_CONFIG, TRANSFORMER_CONFIG_TEST_FUNCTION_OPTIONS)
   t.deepEqual(obj, { a: 246, b: 468, c: 345 })
 })
 
-test('Processor test regexp resolve', (t) => {
-  const obj = resolveDependencies(SIMPLE_MULTIPLE_VALUES_CONFIG, PROCESSOR_CONFIG_TEST_REGEXP_OPTIONS)
+test('Transformer test regexp resolve', (t) => {
+  const obj = resolveDependencies(SIMPLE_MULTIPLE_VALUES_CONFIG, TRANSFORMER_CONFIG_TEST_REGEXP_OPTIONS)
   t.deepEqual(obj, { a: 246, b: 468, c: 345 })
 })

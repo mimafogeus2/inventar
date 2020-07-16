@@ -1,4 +1,4 @@
-import { Inventar } from './lib/Inventar'
+import { Inventarator } from './lib/Inventarator'
 
 // Exports go here
-export default Inventar
+export default Inventarator
