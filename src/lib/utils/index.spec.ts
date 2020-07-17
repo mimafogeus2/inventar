@@ -1,6 +1,7 @@
 import test from 'ava';
 
-import { isDerivative, mergeOptionsWithDefaults, DEFAULT_OPTIONS } from '.'
+import { DEFAULT_OPTIONS, injectCssVars, isDerivative, mergeOptionsWithDefaults } from '.'
+import { config2CssVars, resolveConfig } from '../core'
 
 test('mergeOptionsWithDefaults, empty object', (t) => {
   t.deepEqual(mergeOptionsWithDefaults({}), DEFAULT_OPTIONS)
@@ -23,4 +24,13 @@ test('isDerivative', (t) => {
   t.is(isDerivative([]), false)
   t.is(isDerivative(null), false)
   t.is(isDerivative(undefined), false)
+})
+
+test('Default injector function', (t) => {
+  const myInventar = config2CssVars(resolveConfig({ oneParam: 1 }))
+  const domEl = document.createElement('div')
+  
+  injectCssVars(myInventar.cssVars, domEl)
+  const domElementStyle = domEl.getAttribute('style')
+  t.is(domElementStyle, '--one-param: 1')
 })

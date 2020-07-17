@@ -14,7 +14,7 @@ const camelCase2KebabCase = (str: string) => str.replace(/([a-z0-9]|(?=[A-Z]))([
 const cssVars2StyleString = (config: Inventar) => (
   Object.entries(config).map(([name, value]) => `${name}: ${value}`).join(';')
 )
-const injectCssVars = (formattedConfig: Inventar, domEl: HTMLElement) => {
+export const injectCssVars = (formattedConfig: Inventar, domEl: HTMLElement) => {
   const styleString = cssVars2StyleString(formattedConfig)
   domEl.setAttribute('style', styleString)
 }
