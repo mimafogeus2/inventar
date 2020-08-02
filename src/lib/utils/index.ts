@@ -11,7 +11,7 @@ import {
   InventarValue,
 } from '../../types'
 
-const camelCase2KebabCase = (str: string) => str.replace(/([a-z0-9]|(?=[A-Z]))([A-Z])/g, '$1-$2').toLowerCase();
+export const camelCase2KebabCase = (str: string) => str.replace(/([a-z0-9]|(?=[A-Z]))([A-Z])/g, '$1-$2').toLowerCase();
 const cssVars2StyleString = (config: Inventar) => (
   Object.entries(config).map(([name, value]) => `${name}: ${value}`).join(';')
 )
