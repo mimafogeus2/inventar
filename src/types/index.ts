@@ -27,7 +27,13 @@ export type Inventar = Record<string, InventarValue>
 export interface InventarOptions {
   js2CssNameFormatter?: (jsName: string) => string,
   cssVarsInjector?: InventarInjector,
-  onUpdate?: (config: Inventar, cssVars: Inventar, inject: InventarBoundInjector) => void,
   preTransformers?: InventarTransformersSequence,
   postTransformers?: InventarTransformersSequence,
+  shouldMakeCssInventar?: boolean,
+}
+
+export interface InventarMakerOutput {
+  cssInventar?: Inventar,
+  inject?: InventarBoundInjector,
+  jsInventar: Inventar,
 }

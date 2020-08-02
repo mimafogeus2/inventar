@@ -23,7 +23,7 @@ export const config2CssVars = (config: Inventar, options: InventarOptions = {}) 
   const inject: InventarBoundInjector = cssVarsInjector.bind(null, resolvedCssVars)
 
   return {
-    cssVars: Object.freeze(resolvedCssVars),
+    cssInventar: Object.freeze(resolvedCssVars),
     inject,
   }
 }

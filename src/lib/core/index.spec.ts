@@ -12,7 +12,7 @@ test('resolveConfig', (t) => {
 })
 
 test('config2CssVars, default options', (t) => {
-  t.deepEqual(config2CssVars(SIMPLE_RESOLVED_CONFIG).cssVars, { '--primary-color': '#f00' })
+  t.deepEqual(config2CssVars(SIMPLE_RESOLVED_CONFIG).cssInventar, { '--primary-color': '#f00' })
 })
 
 test('config2CssVars, custom name formatter', (t) => {
@@ -20,7 +20,7 @@ test('config2CssVars, custom name formatter', (t) => {
     config2CssVars(
       SIMPLE_RESOLVED_CONFIG,
       { js2CssNameFormatter: str => str.toUpperCase() }
-    ).cssVars,
+    ).cssInventar,
     { '--PRIMARYCOLOR': '#f00' }
   )
 })

@@ -30,7 +30,7 @@ test('Default injector function', (t) => {
   const myInventar = config2CssVars(resolveConfig({ oneParam: 1 }))
   const domEl = document.createElement('div')
   
-  injectCssVars(myInventar.cssVars, domEl)
+  injectCssVars(myInventar.cssInventar, domEl)
   const domElementStyle = domEl.getAttribute('style')
   t.is(domElementStyle, '--one-param: 1')
 })

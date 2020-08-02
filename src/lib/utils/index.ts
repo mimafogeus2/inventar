@@ -1,5 +1,6 @@
 import {
   Inventar,
+  InventarBoundInjector,
   InventarDerivativeValue,
   InventarEntryTuple,
   InventarOptions,
@@ -27,7 +28,7 @@ export const injectToRoot = (formattedConfig: Inventar) => {
 export const DEFAULT_OPTIONS: InventarOptions = {
   cssVarsInjector: injectCssVars,
   js2CssNameFormatter: camelCase2KebabCase,
-  onUpdate: () => {},
+  shouldMakeCssInventar: true,
 }
 
 export const mergeOptionsWithDefaults = (options: InventarOptions) => ({ ...DEFAULT_OPTIONS, ...options }) as InventarOptions
@@ -42,3 +43,4 @@ export const isEntryTuple = (val?: any): val is InventarEntryTuple => val?.const
 export const isTransformer = (val?: any): val is InventarTransformer => val?.constructor === Function
 export const isTransformerObject = (val?: any): val is InventarTransformerObject => isTransformer(val?.transformer)
 export const isTesterFunction = (val?: any): val is InventarTesterFunction => val?.constructor === Function
+export const isBoundInjector = (val?: any): val is InventarBoundInjector=> val?.constructor === Function
