@@ -19,6 +19,11 @@ export const injectCssVars = (formattedConfig: Inventar, domEl: HTMLElement) => 
   domEl.setAttribute('style', styleString)
 }
 
+export const injectToRoot = (formattedConfig: Inventar) => {
+  const formattedConfigPairs = Object.entries(formattedConfig)
+  formattedConfigPairs.forEach(([name, value])=> document.documentElement.style.setProperty(name, String(value)))
+}
+
 export const DEFAULT_OPTIONS: InventarOptions = {
   cssVarsInjector: injectCssVars,
   js2CssNameFormatter: camelCase2KebabCase,
