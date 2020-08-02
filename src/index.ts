@@ -1,5 +1,5 @@
 import { makeInventar } from './lib'
-import { camelCase2KebabCase, injectCssVars, injectToRoot, isDerivative, isEntryTuple, isValueObject } from './lib/utils'
+import { camelCase2KebabCase, injectToStyle, injectToRoot, isDerivative, isEntryTuple, isValueObject } from './lib/utils'
 import {
   Inventar,
   InventarBoundInjector,
@@ -18,7 +18,7 @@ import {
 
 export {
   // Injectors
-  injectCssVars,
+  injectToStyle,
   injectToRoot,
 
   // Type checkers

@@ -1,6 +1,6 @@
 import test from 'ava';
 
-import { DEFAULT_OPTIONS, injectCssVars, isDerivative, mergeOptionsWithDefaults } from '.'
+import { DEFAULT_OPTIONS, injectToStyle, isDerivative, mergeOptionsWithDefaults } from '.'
 import { config2CssVars, resolveConfig } from '../core'
 
 test('mergeOptionsWithDefaults, empty object', (t) => {
@@ -30,7 +30,7 @@ test('Default injector function', (t) => {
   const myInventar = config2CssVars(resolveConfig({ oneParam: 1 }))
   const domEl = document.createElement('div')
   
-  injectCssVars(myInventar.cssInventar, domEl)
+  injectToStyle(myInventar.cssInventar, domEl)
   const domElementStyle = domEl.getAttribute('style')
   t.is(domElementStyle, '--one-param: 1')
 })
