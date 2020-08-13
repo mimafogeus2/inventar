@@ -11,3 +11,5 @@ coverage
 package-lock.json
 
 .DS_STORE
+
+.eslintcache
