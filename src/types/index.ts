@@ -1,7 +1,10 @@
 export type InventarValue = string | number
 export type InventarDerivativeValue<T = InventarValue> = (config: Inventar) => T
 export type InventarConfigValueField = InventarValue | InventarDerivativeValue
-export interface InventarRawValueObject { value: InventarConfigValueField, transformers?: InventarTransformersSequence }
+export interface InventarRawValueObject {
+	value: InventarConfigValueField
+	transformers?: InventarTransformersSequence
+}
 export type InventarConfigValue = InventarConfigValueField | InventarRawValueObject
 
 export type InventarEntryTuple = [string, InventarValue]
@@ -10,7 +13,10 @@ export type InventarTransformedName = string | InventarDerivativeName
 
 // A transformer modifies a config name and value pair to one or more new config and value pairs.
 export type InventarTransformer = (tuple: InventarEntryTuple) => InventarEntryTuple[]
-export interface InventarTransformerObject { transformer: InventarTransformer, test?: InventarTester }
+export interface InventarTransformerObject {
+	transformer: InventarTransformer
+	test?: InventarTester
+}
 export type InventarTransformersSequence = Array<InventarTransformer | InventarTransformerObject>
 
 // Tests allow to define what fields a global transformer runs on
@@ -25,15 +31,15 @@ export type InventarConfig = Record<string, InventarConfigValue>
 export type Inventar = Record<string, InventarValue>
 
 export interface InventarOptions {
-  js2CssNameFormatter?: (jsName: string) => string,
-  cssVarsInjector?: InventarInjector,
-  preTransformers?: InventarTransformersSequence,
-  postTransformers?: InventarTransformersSequence,
-  shouldMakeCssInventar?: boolean,
+	js2CssNameFormatter?: (jsName: string) => string
+	cssVarsInjector?: InventarInjector
+	preTransformers?: InventarTransformersSequence
+	postTransformers?: InventarTransformersSequence
+	shouldMakeCssInventar?: boolean
 }
 
 export interface InventarMakerOutput {
-  cssInventar?: Inventar,
-  inject?: InventarBoundInjector,
-  jsInventar: Inventar,
+	cssInventar?: Inventar
+	inject?: InventarBoundInjector
+	jsInventar: Inventar
 }
