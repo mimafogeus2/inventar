@@ -14,13 +14,13 @@ export default () => [
 		output: [
 			{
 				file: `${OUTPUT_DIR}/main/inventar.js`,
-				format: 'system',
+				format: 'cjs',
 				exports: 'named',
 				sourcemap: true,
 			},
 			{
 				file: `${OUTPUT_DIR}/main/inventar.min.js`,
-				format: 'system',
+				format: 'cjs',
 				exports: 'named',
 				sourcemap: true,
 				plugins: [terser()],
@@ -30,10 +30,18 @@ export default () => [
 				format: 'esm',
 				sourcemap: true,
 			},
+			{
+				file: `${OUTPUT_DIR}/external/inventar.min.js`,
+				format: 'iife',
+				exports: 'named',
+				name: 'inventar',
+				sourcemap: true,
+				plugins: [terser()],
+			},
 		],
 		plugins: [
 			clear({
-				targets: [`${OUTPUT_DIR}esm`, `${OUTPUT_DIR}system`],
+				targets: [`${OUTPUT_DIR}main`, `${OUTPUT_DIR}module`, `${OUTPUT_DIR}external`],
 				watch: true,
 			}),
 			typescript({ tsconfig: 'tsconfig.prod.json' }),
@@ -41,10 +49,9 @@ export default () => [
 			babel({ babelHelpers: 'bundled' }),
 			filesize({ showMinifiedSize: false }),
 		],
-		external: ['tslib'],
 	},
 	{
-		input: './src/types/index.ts',
+		input: ['./src/index.ts'],
 		output: [{ file: `${OUTPUT_DIR}/main/inventar.d.ts` }, { file: `${OUTPUT_DIR}/module/inventar.d.ts` }],
 		plugins: [dts()],
 	},
