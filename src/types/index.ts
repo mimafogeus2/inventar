@@ -24,8 +24,8 @@ export type InventarTesterFunction = (tuple: InventarEntryTuple) => boolean
 export type InventarTester = InventarTesterFunction | RegExp
 
 // An injector function injects formatted config data to a DOM element (e.g. CSS variables).
-export type InventarInjector = (formattedConfig: Inventar, domEl: HTMLElement) => void
-export type InventarBoundInjector = (domEl: HTMLElement) => void
+export type InventarInjector = (formattedConfig: Inventar, domEl?: HTMLElement) => void
+export type InventarBoundInjector = (domEl?: HTMLElement) => void
 
 export type InventarConfig = Record<string, InventarConfigValue>
 export type Inventar = Record<string, InventarValue>
