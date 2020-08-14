@@ -7,8 +7,6 @@ interface InventarRawValueObject {
 }
 declare type InventarConfigValue = InventarConfigValueField | InventarRawValueObject;
 declare type InventarEntryTuple = [string, InventarValue];
-declare type InventarDerivativeName = InventarDerivativeValue<string>;
-declare type InventarTransformedName = string | InventarDerivativeName;
 declare type InventarTransformer = (tuple: InventarEntryTuple) => InventarEntryTuple[];
 interface InventarTransformerObject {
     transformer: InventarTransformer;
@@ -17,8 +15,8 @@ interface InventarTransformerObject {
 declare type InventarTransformersSequence = Array<InventarTransformer | InventarTransformerObject>;
 declare type InventarTesterFunction = (tuple: InventarEntryTuple) => boolean;
 declare type InventarTester = InventarTesterFunction | RegExp;
-declare type InventarInjector = (formattedConfig: Inventar, domEl: HTMLElement) => void;
-declare type InventarBoundInjector = (domEl: HTMLElement) => void;
+declare type InventarInjector = (formattedConfig: Inventar, domEl?: HTMLElement) => void;
+declare type InventarBoundInjector = (domEl?: HTMLElement) => void;
 declare type InventarConfig = Record<string, InventarConfigValue>;
 declare type Inventar = Record<string, InventarValue>;
 interface InventarOptions {
@@ -34,4 +32,14 @@ interface InventarMakerOutput {
     jsInventar: Inventar;
 }
 
-export { Inventar, InventarBoundInjector, InventarConfig, InventarConfigValue, InventarConfigValueField, InventarDerivativeName, InventarDerivativeValue, InventarEntryTuple, InventarInjector, InventarMakerOutput, InventarOptions, InventarRawValueObject, InventarTester, InventarTesterFunction, InventarTransformedName, InventarTransformer, InventarTransformerObject, InventarTransformersSequence, InventarValue };
+declare const makeInventar: (config: InventarConfig, options?: InventarOptions) => InventarMakerOutput;
+
+declare const camelCase2KebabCase: (str: string) => string;
+declare const injectToStyle: (formattedConfig: Inventar, domEl: HTMLElement) => void;
+declare const injectToRoot: (formattedConfig: Inventar) => void;
+declare const isDerivative: (val?: any) => val is InventarDerivativeValue<InventarValue>;
+declare const isValueObject: (val?: any) => val is InventarRawValueObject;
+declare const isEntryTuple: (val?: any) => val is InventarEntryTuple;
+
+export default makeInventar;
+export { Inventar, InventarBoundInjector, InventarConfig, InventarInjector, InventarMakerOutput, InventarOptions, InventarTester, InventarTesterFunction, InventarTransformer, InventarTransformerObject, InventarTransformersSequence, camelCase2KebabCase, injectToRoot, injectToStyle, isDerivative, isEntryTuple, isValueObject };
