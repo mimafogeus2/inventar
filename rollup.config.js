@@ -8,6 +8,16 @@ import typescript from 'rollup-plugin-typescript2'
 
 const OUTPUT_DIR = 'dist/'
 
+// This removes the permission/license message injected by tslib to the finalized code.
+// That should be okay according to https://github.com/microsoft/tslib/issues/47.
+const TERSER_READABLE = terser({
+	output: { beautify: true, comments: false },
+	keep_fnames: true,
+	mangle: false,
+	compress: false,
+})
+const TERSER_MINIFY = terser({ output: { comments: false } })
+
 export default () => [
 	{
 		input: ['./src/index.ts'],
@@ -17,18 +27,20 @@ export default () => [
 				format: 'cjs',
 				exports: 'named',
 				sourcemap: true,
+				plugins: [TERSER_READABLE],
 			},
 			{
 				file: `${OUTPUT_DIR}/main/inventar.min.js`,
 				format: 'cjs',
 				exports: 'named',
 				sourcemap: true,
-				plugins: [terser()],
+				plugins: [TERSER_MINIFY],
 			},
 			{
 				file: `${OUTPUT_DIR}/module/inventar.esm.js`,
 				format: 'esm',
 				sourcemap: true,
+				plugins: [TERSER_READABLE],
 			},
 			{
 				file: `${OUTPUT_DIR}/external/inventar.min.js`,
@@ -36,7 +48,7 @@ export default () => [
 				exports: 'named',
 				name: 'inventar',
 				sourcemap: true,
-				plugins: [terser()],
+				plugins: [TERSER_MINIFY],
 			},
 		],
 		plugins: [
