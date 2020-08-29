@@ -1,197 +1,279 @@
-## Inventar
+# Inventar
 
-A TypeScript/JavaScript Design Language Implementer.
-
-
-
-### Wait, isn't this just another CSS/JS/\<insert tech here\> styling library?
-
-Nope. But, [as long as CSS variables are supported](https://caniuse.com/#feat=css-variables), it works alongside all of them.
-Inventar doesn't hold selectors, CSS properties or selectors. It holds **values** - colors, numbers, URIs... anything you could put in a CSS variable.
-
-#### This **separation of concerns** has some advantages:
-- It's very easy to manage and access your values both from JS, from CSS and from any of their supersets - a truly single source of origin.
-- Design guidelines are usually hard to teach and enforce. Separating and naming values from the rest of your styling, and have a single universal source for all of them, could make it easier.
-- It's also easier to define design guidelines this way. Work together with designers to create your Inventar config and make it easier to transfer their vision to the product.
-- You can focus on well-defined, logically connected definitions. Inventar does that with Derivatives.
-- Transformers allow you to split, derive, remove, lint and work with values in ways that modify the tree.
-- This seperation allows you to use CSS with Javascript logic. This is very useful for theming and white-labeling, for example, where you could now keep your Stylesheets tidy while easily including design variables from external, dynamic data.
+The nicest, most organized TS/JS single source of truth for your style variables (and more!)
 
 
 
-## Getting Started
+## Table of Contents
 
-1. Install Inventar (`npm install inventar`).
-2. Run `makeInventar` with your configuration:
-    ```javascript
-    import makeInventar from 'inventar'
-    
-    const MY_INVENTAR_CONFIG = {
-        mainColor: '#007788',
-        mainText: (config) => config.mainColor,
-    }
-    
-    const { jsInventar, cssInventar, inject } = makeInventar(MY_INVENTAR_CONFIG)
-    ```
-3. To access your variables in JavaScript or TypeScript:
-    ```javascript
-    jsConfig.mainText // #007788
-    ```
-4. To add them as CSS variable, inject them to a wrapping object:
-    ```javascript
-    const appWrapper = document.getElementsByClassName('appWrapper')[0]
-    inject(appWrapper)
-    ```
+* [What Does It Do?](#What-Does-It-Do)
+* [Why?](#Why)
+* [Quickstart](#Quickstart)
+* [Configurations (And How To Write Them)](#Configurations-and-how-to-write-them)
+  * [Derivatives](#Derivatives)
+  * [Options](#Options)
+* [Transformers](#Transformers)
+  * [Value-Specific Transformers](#Value-Specific-Transformers)
+  * [Global Transformers](#Global-Transformers)
+* [Contribute](#Contribute)
 
 
 
-## Configuration
+## What Does It Do?
 
-A configuration is your definition of the inventar. It is a flat object, whose keys will become variable names, and its values - their values.
-A configuration value may be of the following types:
+Inventar takes in a configuration object with all of your style variables - colors, sizes, URIs and anything else you might find as a CSS value, or a part of it. 
+
+This configuration can define which values are derived from other values, and can include transformers - simple plugins - to alter or generate variables as needed. This can be written with pure functions, to allow a well-contained, easily readable and powerful way to define your style variables.
+
+It returns the result as a flat JS object, and a function to inject these same values as CSS variables to a DOM element.
 
 ```javascript
-const SAMPLE_CONFIG = {
-    numberValue: 1, // Number
-    stringValue: '#ff0000', // String
-    derivativeValue: config => 2 * config.numberValue, // Derivative function
-    definitionObjectValue: { value: 3, transformers: [...] }, // Definition object
+import makeInventar from 'inventar'
+
+const MY_INVENTAR_CONFIG = {
+  mainColor: '#007788',
+  mainText: (config) => config.mainColor,
+  logoUri: { value: '/assets/logo.png', transformers: [withHighRes()] }, 
 }
+
+const { jsInventar, cssInventar, inject } = makeInventar(MY_INVENTAR_CONFIG)
+
+console.log(jsInventar)
+/**
+  {
+    mainColor: '#007788',
+    mainText: '#007788',
+    logoUri: '/assets/logo.png',
+    logoUriX2: '/assets/logo@2x.png'
+  }
+**/
+
+console.log(cssInventar)
+/**
+  {
+    '--main-color': '#007788',
+    '--main-text': '#007788',
+    '--logo-uri': '/assets/logo.png',
+    '--logo-uri-x2': '/assets/logo@2x.png'
+  }
+**/
+
+const appWrapper = document.getElementsByClassName('appWrapper')[0]
+inject(appWrapper) // <div class="appWrapper" style="--main-color: '#007788', ..." />
 ```
+
+
+
+## Why?
+
+* __Single source of truth__ for all of your styles, accessible both in JS and with any styling language or methodology you work with.
+* __Separation of concerns__ makes it easier to write related plugins, linters, and any related logic, and reuse others' - no matter what's their stack.
+* __Enforce design guidelines__ by defining variables by other variables, and by pairing with designers to define them in a single file.
+
+
+
+## Quickstart
+
+1. Install Inventar (`npm install inventar`).
+
+2. Run `makeInventar` with your [configuration](#Configurations-and-how-to-write-them):
+
+   ```javascript
+   import makeInventar from 'inventar'
+   
+   const MY_INVENTAR_CONFIG = {
+     mainColor: '#007788',
+     mainText: (config) => config.mainColor,
+   }
+   
+   const { jsInventar, cssInventar, inject } = makeInventar(MY_INVENTAR_CONFIG)
+   ```
+
+3. To access your variables in JavaScript or TypeScript:
+
+   ```javascript
+   jsConfig.mainText // #007788
+   ```
+
+4. To add them as CSS variable, inject them to a wrapping object:
+
+   ```javascript
+   const appWrapper = document.getElementsByClassName('appWrapper')[0]
+   inject(appWrapper)
+   ```
+
+
+
+## Configurations (And How To Write Them)
+
+The first, and only mandatory, argument that you pass to `makeInventar` is your __configuration__. A configuration is an object that defines all of your style variables - colors, sizes, URIs, background settings, numbers and anything else you'd find as, or as a part of, CSS values.
+
+A value can be a __number__, a __string__, a __derivative function__ (see [derivatives](#derivatives)) or an __object__ containing the value and related options:
+
+```javascript
+const { jsInventar, inject } = makeInventar({
+  gray: '#888',
+  headerHeight: 180,
+  headerBackground: config => config.gray,
+  logoUri: { value: '/assets/logo.png', transformers: [withHighRes()] },
+})
+```
+
+
+
+The object will have the following structure:
+
+| Field            | Type                                                     | Required? | Default Value | Description                                                  |
+| ---------------- | -------------------------------------------------------- | --------- | ------------- | ------------------------------------------------------------ |
+| __value__        | `number | string | inventarDerivative`                   | Yes       | -             | The value of the field (same one you'd put outside of the object). |
+| __transformers__ | `Array(inventarTransformer | inventarTransformerObject`) | No        | `[]`          | An array of transformers (see [transformers](#transformers)) to alter the value. |
+
 
 
 ### Derivatives
 
-Derivatives are values that are derived, computed, from another value or values. A derivative is a function that accepts the resolved version of your configuration as an argument, so you can access all of your variables.
-You can use this to define component/role colors from named colors:
+A __derivative__ is a function of the type `(config: InventarConfig) => (number | string)`. The purpose is to __derive__ (eh?) a value from other values,. It can be used to generate a value with any other logic as well.
+
+Some use cases include:
+
+```javascript
+import tinycolor from 'tinycolor2'
+
+{
+  // Separation between "primitive" values and their uses.
+  mainErrorColor: '#ff2200',
+  errorMessage: config => config.mainErrorColor,
+	
+  // Handling hover/focus/active events.
+  linkColor: '#4455ff',
+  linkHoverColor: config => tinyColor(config.linkColor).brighten(30).toString(),
+	
+	// Picking a color according to a theme.
+  themeName: () => {
+    const currentHour = Date().getHours()
+    return (currentHour <= 5 || currentHour >= 19) ? 'dark' : 'light'
+  },
+  backgroundColor: (config) => config.themeName === 'dark' ? '#001122' : '#ffeedd',
+}
+```
+
+Derivatives can use multiple values. They can also call other derivatives, and order them in any way you'd like - Inventar takes care to resolve everything in the right order.
+
+Circular values cannot be handled. Inventar can detect them, and it'll throw an error if it does.
 
 ```javascript
 {
-    mainBright: `#f0f0f0`,
-    backgroundColor: config => config.mainBright,
-}
-```
-To create values with relations to other values:
-```
-{
-    gray: '#888',
-    brightGray: config => brightenColor(config.gray),
-    baseMargin: 5,
-    doubleMargin: config => 2 * config.baseMargin,
-}
-```
-And much more.
+  // This is okay!
+  largeMargin: config => config.mediumMargin * 2,
+  mediumMargin: config => config.smallMargin * 2,
+  smallMargin: 2,
 
-
-
-### Definition Objects
-
-Definition objects allow you to add additional options to your variable. Currently, the only option available is **transformers**, which accepts an array of transformer functions to apply on the value. You can read more about transformers below.
-```javascript
-{
-    gray: {
-        value: '#888',
-        transformers: [steps(5)],
-    }
-}
-```
-Could be resolved to:
-```javascript
-{
-    darkerGray: '#666',
-    darkGray: '#777',
-    gray: '#888',
-    lightGray: '#999',
-    lighterGray: '#aaa',
+  // This is a circular dependency, and it'll get you an error.
+  chicken: config => config.egg,
+  egg: config.chicken,
 }
 ```
 
-## Options
-All options are optional.
 
-| option              | type                                                       | default               | description                                                  |
-| ------------------- | ---------------------------------------------------------- | --------------------- | ------------------------------------------------------------ |
-| cssVarsInjector     | (cssVarsConfig:inventarConfig, domEl: HTMLElement) => void | `injectToStyle`       | Overrides the way CSS vars are injected to a DOM element when `inject` is used. Two functions are provided - **`injectToStyle`**, which adds CSS variables as inline styles and allows you to choose which DOM element will be injected, and **`injectToRoot`** which adds them to the document body with `setProperty` and is more backward compatible. You can also write your own. |
-| js2CssNameFormatter | (jsName:string) => string                                  | `camelCase2KebabCase` | Formats JS variable names are to css variable names.         |
-| preTransformers     | InventarTransformersSequence                               | `[]`                  | A sequence of transformers to be executed on every variable, before its own transformers run. |
-| postTransformers    | InventarTransformersSequence                               | `[]`                  | A sequence of transformers to be executed on every variable, after its own transformers run. |
-|shouldMakeCssInventar|boolean|`true`|If set to false, running `makeInventar` will **not** create `cssInventar` and `inject`.
+
+#### What happens behind the scenes?
+
+_(You can also check the [code](https://github.com/mimafogeus2/inventar/blob/master/src/lib/core/resolveDependencies.ts#L63) that does this)_
+
+Your configuration is passed to Inventar's dependency resolver. After handling the [transformers](#transformers), when the configuration contains only numbers, strings and derivatives as values, it creates a [proxy](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Proxy) around it.
+
+It then creates a queue of name-value pairs, and starts a loop.
+
+In each iteration, the first value in the queue is popped and the resolver tries to resolve it. If the object is not a derivative, then it is already resolved, and is removed from the queue. If the value is a derivative, the resolver executes it with the proxied configuration as a parameter.
+
+Using a proxy allows us to run logic when a value is called. If the function calls a value and it's a derivative, then, instead of being resolved, the tested name-value pair is returned to the end of the queue. This assumes that by the next time we'll try to run the derivative value, whatever other values it'll call will be resolved already.
+
+When a value is successfully resolved, the proxied configuration will be mutated with the result, making it accessible to future derivatives.
+
+This loop continues until the queue is empty (in which case it's completely resolved) or when a loop is detected (in which case you'll get a circular dependency error).
+
+
+
+### Options
+
+`makeInventar` accepts a second, optional argument, with options.
+
+These are all optional.
+
+| option              | type                                                         | default               | description                                                  |
+| ------------------- | ------------------------------------------------------------ | --------------------- | ------------------------------------------------------------ |
+| cssVarsInjector     | `(cssVarsConfig:inventarConfig, domEl: HTMLElement) => void` | `injectToStyle`       | Overrides the way CSS vars are injected to a DOM element when `inject` is used. Two functions are provided - **`injectToStyle`**, which adds CSS variables as inline styles and allows you to choose which DOM element will be injected, and **`injectToRoot`** which adds them to the document body with `setProperty` and is more backward compatible. You can also write your own. |
+| js2CssNameFormatter | `(jsName:string) => string`                                  | `camelCase2KebabCase` | Formats JS variable names are to css variable names.         |
+| preTransformers     | `InventarTransformersSequence`                               | `[]`                  | A sequence of transformers to be executed on every variable, before its own transformers run. |
+| postTransformers    | `InventarTransformersSequence`                               | `[]`                  | A sequence of transformers to be executed on every variable, after its own transformers run. |
 
 
 
 ## Transformers
 
-Transformers are middleware, plugins, that you can apply on variables to alter, create multiple new variables or remove variables in your configuration.
+__Transformers__ are the plugins of the Inventar system. They accept one, some or all variables and can alter, remove or create new ones from them.
+
+An `InventarTransformer` is a function of the type: `([varName, varValue]) => [varName, varValue][]`. It accept a tuple representing a single variable (name and value), and returns an array of zero or more such tuples.
+To get parameters for a transformer, we recommend creating a HOC to accept them and return an `InventarTransformer`.
+
+```JavaScript
+const doubleValue = ([name, value]) => [[name, value * 2]]
+const multiplyBy = (by: number) => ([name, value]) => [[name, value * by]]
+```
+
+When providing transformers (See [Value-Specific Transformers](#Value-Specific Transformers) and [Global Transformers](#Global Transformers))), you'll be asked to provide them in a sequence - an array - and they'll be executed in order.
+
+Each item in this sequence can either be an `InventarTransformer`, or an object of the following structure:
+
+| Field           | Type                                 | Required? | Default Value | Description                                                  |
+| --------------- | ------------------------------------ | --------- | ------------- | ------------------------------------------------------------ |
+| __transformer__ | `InventarTransformer`                | Yes       | -             | A transformer function.                                      |
+| __test__        | `regex | ([name ,value]) => boolean` | No        | `undefined`   | A regex to test a value, or a function to test a name and value tuple. The transformer will only be executed on items that where the provided test returns true.<br />This is mainly useful in [Global Transformers](#Global Transformers). |
 
 
 
 ### Value-Specific Transformers
 
-A value provided as a definition project can include an array of transformers. For example:
+A transformer that's applied to a single variable is a __value-specific transformer__. It is provided as a field in a [value object](#Configurations-and-how-to-write-them).
 
 ```javascript
-// Input
-{
-    gray: {
-        value: '#888',
-        transformers: [steps(5)],
-    }
-}
-  
-// Could be resolved to:
-{
-    darkerGray: '#666',
-    darkGray: '#777',
-    gray: '#888',
-    lightGray: '#999',
-    lighterGray: '#aaa',
+const MY_INVENTAR_CONFIG = {
+  transformedVariable: { value: 100, transformers[doubleValue, multiplyBy(3), ...] }, // { transformedVariable: 600 }
 }
 ```
+
 
 
 ### Global Transformers
 
-You can apply transformers on all of the configuration by passing them as options. Both `preTransformers` and `postTransformers` accept an array of transformers. The execution order is as follows:
+Global transformers are provided in the [options](#Options) object, and will transform all variables (or some, if a test argument is provided).
 
-```
-preTransformers → value-specific transformers → derivative functions -> postTransformers
-```
-
-
-
-To execute a global transformer on some (but not all) of the variable, you can provide a test function or a regex, like so:
+You can provide two transformer sequences - `preTransformers` and `postTransformers`, which vary by their order of execution; `preTransformers` are executed first, then value-specific transformers, and then `postTransformers`.
 
 ```javascript
-postTransformers: [{ transformer: hexToRgba(), test: /[0-9a-f]{3}|[0-9a-f]{6}|[0-9a-f]{8}/ }]
-```
-
-
-
-### Writing Your Own Transformers
-
-Writing a transformer is very simple. A transformer is simply a function that accepts a variable tuple (its name and value), and returns an array of zero or more such tuples.
-
-```javascript
-// This is a transformer. It'll replace a given variable with another one that with the value doubled and its name postfixed with "X2":
-([name, value]) => [[`${capitalizeFirstLetter(name)}X2`, value * 2]]
-
-// The original variable is not preserved. If we'd like to keep it, we can pass it as another variable:
-([name, value]) => [[name, value], [`${capitalizeFirstLetter(name)}X2`, value * 2]]
-
-// To just remove the variable, simply return an empty array. This will remove the variable if its name ends with the word "Debug":
-([name, value]) => name.endsWith('Debug') ? [] : [[name, value]]
-
-// If your transformer needs to accept an option, accept them in a higher order function and return the transformer, like so:
-const multiplyBy = (by) => ([name, value]) => [[name, value * by]]
-...
-{
-  singleMargin: 3,
-  doubleMargin: { value: config => config.singleMargin, transformers: [multiplyBy(2)] }
+const INVENTAR_OPTIONS = {
+  preTransformers: [doThisFirst],
+  postTransformers: [
+    { transformer: doThisLastOnColors, test: ([name, value]) => name.toLowerCase().includes('color') }
+  ],
 }
 ```
 
 
 
-## Development
+## Contribute
 
-TODO
+### Test and Feedback
+
+__Inventar is not published yet__, but you can test it by cloning this repository and adding it as a local dependency:
+
+```bash
+npm install -s /path/to/inventar
+```
+
+or
+
+```bash
+yarn add /path/to/inventar
+```
+
