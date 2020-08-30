@@ -13,6 +13,7 @@ export type InventarTransformedName = string | InventarDerivativeName
 
 // A transformer modifies a config name and value pair to one or more new config and value pairs.
 export type InventarTransformer = (tuple: InventarEntryTuple) => InventarEntryTuple[]
+export type InventarTransformerHoc = (...args: any[]) => InventarTransformer
 export interface InventarTransformerObject {
 	transformer: InventarTransformer
 	test?: InventarTester

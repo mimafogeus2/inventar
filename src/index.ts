@@ -17,6 +17,7 @@ import {
 	InventarTester,
 	InventarTesterFunction,
 	InventarTransformer,
+	InventarTransformerHoc,
 	InventarTransformerObject,
 	InventarTransformersSequence,
 } from './types'
@@ -43,6 +44,7 @@ export {
 	InventarTester,
 	InventarTesterFunction,
 	InventarTransformer,
+	InventarTransformerHoc,
 	InventarTransformerObject,
 	InventarTransformersSequence,
 }
