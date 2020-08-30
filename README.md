@@ -6,16 +6,19 @@ The nicest, most organized TS/JS single source of truth for your style variables
 
 ## Table of Contents
 
-* [What Does It Do?](#What-Does-It-Do)
-* [Why?](#Why)
-* [Quickstart](#Quickstart)
-* [Configurations (And How To Write Them)](#Configurations-and-how-to-write-them)
-  * [Derivatives](#Derivatives)
-  * [Options](#Options)
-* [Transformers](#Transformers)
-  * [Value-Specific Transformers](#Value-Specific-Transformers)
-  * [Global Transformers](#Global-Transformers)
-* [Contribute](#Contribute)
+- [Inventar](#inventar)
+  - [Table of Contents](#table-of-contents)
+  - [What Does It Do?](#what-does-it-do)
+  - [Why?](#why)
+  - [Quickstart](#quickstart)
+  - [Configurations (And How To Write Them)](#configurations-and-how-to-write-them)
+    - [Derivatives](#derivatives)
+      - [What happens behind the scenes?](#what-happens-behind-the-scenes)
+    - [Options](#options)
+  - [Transformers](#transformers)
+    - [Value-Specific Transformers](#value-specific-transformers)
+    - [Global Transformers](#global-transformers)
+  - [Contribute](#contribute)
 
 
 
@@ -263,17 +266,6 @@ const INVENTAR_OPTIONS = {
 
 ## Contribute
 
-### Test and Feedback
-
-__Inventar is not published yet__, but you can test it by cloning this repository and adding it as a local dependency:
-
-```bash
-npm install -s /path/to/inventar
-```
-
-or
-
-```bash
-yarn add /path/to/inventar
-```
-
+Inventar is in a very early stage, and might be subject to major changes.
+I'll be happy for any feedback and ideas at inventar.feedback(at)foge.us.
+The repository will become public soon, and then you could open issues and contribute.
