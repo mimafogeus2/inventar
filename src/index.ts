@@ -25,6 +25,7 @@ import {
 // Exports go here
 
 export {
+	makeInventar,
 	// Injectors
 	injectToStyle,
 	injectToRoot,
