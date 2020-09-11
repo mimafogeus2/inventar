@@ -31,7 +31,7 @@ This configuration can define which values are derived from other values, and ca
 It returns the result as a flat JS object, and a function to inject these same values as CSS variables to a DOM element.
 
 ```javascript
-import makeInventar from 'inventar'
+import { makeInventar } from 'inventar'
 
 const MY_INVENTAR_CONFIG = {
   mainColor: '#007788',
@@ -82,7 +82,7 @@ inject(appWrapper) // <div class="appWrapper" style="--main-color: '#007788', ..
 2. Run `makeInventar` with your [configuration](#Configurations-and-how-to-write-them):
 
    ```javascript
-   import makeInventar from 'inventar'
+   import { makeInventar } from 'inventar'
    
    const MY_INVENTAR_CONFIG = {
      mainColor: '#007788',
