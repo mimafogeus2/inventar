@@ -1,8 +1,8 @@
 import test from 'ava'
 
-import { InventarConfig, InventarTransformer } from '../../types'
+import { InventarConfig, InventarEntryTuple, InventarTransformer } from '../../types'
 import { ResolveError } from '../errors'
-import { resolveDependencies } from './resolveDependencies'
+import { createTuplesFromTransformers, resolveDependencies } from './resolveDependencies'
 
 const multiplyTransformer: InventarTransformer = ([name, value]: [string, number]) => [[name, value * 2]] // return derivatives instead
 const repeatNameTransformer: InventarTransformer = ([name, value]) => [[`${name}_${name}`, value]]
@@ -61,6 +61,7 @@ const TRANSFORMER_CONFIG_TEST_FUNCTION_OPTIONS = {
 const TRANSFORMER_CONFIG_TEST_REGEXP_OPTIONS = {
 	preTransformers: [{ transformer: multiplyTransformer, test: /^[ab].*/ }],
 }
+const BASIC_TUPLE: InventarEntryTuple = ['a', 123]
 
 test('Simple resolve', t => {
 	const obj = resolveDependencies(SIMPLE_CONFIG)
@@ -173,4 +174,10 @@ test('Transformer test function resolve', t => {
 test('Transformer test regexp resolve', t => {
 	const obj = resolveDependencies(SIMPLE_MULTIPLE_VALUES_CONFIG, TRANSFORMER_CONFIG_TEST_REGEXP_OPTIONS)
 	t.deepEqual(obj, { a: 246, b: 468, c: 345 })
+})
+
+// Helper function tests
+test('flattenTransformedTuples with no transformers passed', t => {
+	const flattenedTuple = createTuplesFromTransformers(BASIC_TUPLE)
+	t.deepEqual(flattenedTuple, [BASIC_TUPLE])
 })

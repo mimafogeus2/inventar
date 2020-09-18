@@ -21,7 +21,7 @@ import {
 
 const FILTER_NONE_REGEXP = /.*/
 
-const createThrowIfEmptyFieldObject = (starterObject = {}) =>
+const createThrowIfEmptyFieldObject = starterObject =>
 	new Proxy(starterObject, {
 		get: (target, prop) => {
 			if (!target[prop]) {
@@ -34,7 +34,7 @@ const createThrowIfEmptyFieldObject = (starterObject = {}) =>
 const testTuple = (tester: InventarTester, tuple: InventarEntryTuple) =>
 	isTesterFunction(tester) ? tester(tuple) : tester.test(String(tuple[0]))
 
-const createTuplesFromTransformers = (
+export const createTuplesFromTransformers = (
 	valueTuple: InventarEntryTuple,
 	[currentTransformer, ...restOfTransformers]: InventarTransformersSequence = []
 ) => {
@@ -71,7 +71,7 @@ const resolveTuple = (config: Inventar, name: InventarTransformedName, value: In
 export const resolveDependencies = (initialData: InventarConfig, options?: InventarOptions) => {
 	const preTransformers = options?.preTransformers || []
 	const postTransformers = options?.postTransformers || []
-	const doesGlobalTransformersExist = !!(preTransformers?.length || postTransformers.length)
+	const doesGlobalTransformersExist = !!(preTransformers.length || postTransformers.length)
 
 	const processQueue = Object.entries(initialData)
 
