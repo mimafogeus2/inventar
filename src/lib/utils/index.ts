@@ -23,6 +23,8 @@ export const injectToStyle = (formattedConfig: Inventar, domEl: HTMLElement) => 
 	domEl.setAttribute('style', styleString)
 }
 
+// Ava doesn't support this kind of DOM testing. Hopefully there's a way to test this properly, but for now:
+/* istanbul ignore next */
 export const injectToRoot = (formattedConfig: Inventar) => {
 	const formattedConfigPairs = Object.entries(formattedConfig)
 	formattedConfigPairs.forEach(([name, value]) => document.documentElement.style.setProperty(name, String(value)))
