@@ -124,12 +124,16 @@ const { jsInventar, inject } = makeInventar({
 
 
 
-The object will have the following structure:
+The object will have the following structure, and it __must__ either:
 
-| Field            | Type                                                     | Required? | Default Value | Description                                                  |
+- Include a value (`{ value: '' }`) (and optionally any number of transformers).
+- Include at least one transformer, with the first one not requiring an initial value
+  (`{ transformers: [transformerWithNoValueInput, ...] }`).
+
+| Field            | Type                                                     | Default Value | Description                                                  |
 | ---------------- | -------------------------------------------------------- | --------- | ------------- | ------------------------------------------------------------ |
-| __value__        | `number | string | inventarDerivative`                   | Yes       | -             | The value of the field (same one you'd put outside of the object). |
-| __transformers__ | `Array(inventarTransformer | inventarTransformerObject`) | No        | `[]`          | An array of transformers (see [transformers](#transformers)) to alter the value. |
+| __value__        | `number | string | inventarDerivative`                   | -             | The value of the field (same one you'd put outside of the object). |
+| __transformers__ | `Array(inventarTransformer | inventarTransformerObject`) | `[]`          | An array of transformers (see [transformers](#transformers)) to alter the value. |
 
 
 
@@ -216,12 +220,18 @@ These are all optional.
 
 __Transformers__ are the plugins of the Inventar system. They accept one, some or all variables and can alter, remove or create new ones from them.
 
-An `InventarTransformer` is a function of the type: `([varName, varValue]) => [varName, varValue][]`. It accept a tuple representing a single variable (name and value), and returns an array of zero or more such tuples.
+An `InventarTransformer` is a function of the type: `([varName, varValue]) => [varName, varValue][]`. It (optionally) accepts a tuple representing a single variable (name and value), and returns an array of zero or more such tuples.
 To get parameters for a transformer, we recommend creating a HOC to accept them and return an `InventarTransformer`.
 
 ```JavaScript
 const doubleValue = ([name, value]) => [[name, value * 2]]
 const multiplyBy = (by: number) => ([name, value]) => [[name, value * by]]
+
+// This transformer doesn't use a value. You can use it as a first transformer instead of having a value field in a value object.
+const colorByHour = () => {
+  const hour = (new Date()).getHours()
+  return 7 < hour && hour < 18 ? '#eee' : '#111'
+}
 ```
 
 When providing transformers (See [Value-Specific Transformers](#Value-Specific Transformers) and [Global Transformers](#Global Transformers))), you'll be asked to provide them in a sequence - an array - and they'll be executed in order.
