@@ -60,8 +60,17 @@ var isDerivative = function(val) {
     return (val === null || val === void 0 ? void 0 : val.constructor) === Function;
 };
 
+var isValueWithValueObject = function(val) {
+    return Object.keys(val).includes("value");
+};
+
+var isValueTransformersOnlyObject = function(val) {
+    var _a;
+    return ((_a = val === null || val === void 0 ? void 0 : val.transformers) === null || _a === void 0 ? void 0 : _a.constructor) === Array && val.transformers.length > 0 && !Object.keys(val).includes("value");
+};
+
 var isValueObject = function(val) {
-    return (val === null || val === void 0 ? void 0 : val.value) !== undefined;
+    return isValueWithValueObject(val) || isValueTransformersOnlyObject(val);
 };
 
 var isFieldName = function(val) {
@@ -99,9 +108,6 @@ var fieldDoesntExistYetError = function(fieldName) {
 var FILTER_NONE_REGEXP = /.*/;
 
 var createThrowIfEmptyFieldObject = function(starterObject) {
-    if (starterObject === void 0) {
-        starterObject = {};
-    }
     return new Proxy(starterObject, {
         get: function(target, prop) {
             if (!target[prop]) {
@@ -153,7 +159,7 @@ var resolveTuple = function(config, name, value) {
 var resolveDependencies = function(initialData, options) {
     var preTransformers = (options === null || options === void 0 ? void 0 : options.preTransformers) || [];
     var postTransformers = (options === null || options === void 0 ? void 0 : options.postTransformers) || [];
-    var doesGlobalTransformersExist = !!((preTransformers === null || preTransformers === void 0 ? void 0 : preTransformers.length) || postTransformers.length);
+    var doesGlobalTransformersExist = !!(preTransformers.length || postTransformers.length);
     var processQueue = Object.entries(initialData);
     var resolvedConfig = {};
     var errorThrowingResolvedConfig = createThrowIfEmptyFieldObject(resolvedConfig);
@@ -162,9 +168,10 @@ var resolveDependencies = function(initialData, options) {
     while (processQueue.length && cycleDetect <= processQueue.length) {
         var currentPair = processQueue.shift();
         var name_1 = currentPair[0], rawValue = currentPair[1];
-        var value = isValueObject(rawValue) ? rawValue.value : rawValue;
         try {
             if (doesGlobalTransformersExist || isValueObject(rawValue)) {
+                var valueFieldOfObject = isValueWithValueObject(rawValue) ? rawValue.value : undefined;
+                var value = valueFieldOfObject || (isValueTransformersOnlyObject(rawValue) ? undefined : rawValue);
                 var resolvedTuple = resolveWithConfig(name_1, value);
                 var valueTransformers = isValueObject(rawValue) && rawValue.transformers || [];
                 var allTransformers = __spreadArrays(preTransformers, valueTransformers, postTransformers);
@@ -175,7 +182,7 @@ var resolveDependencies = function(initialData, options) {
                     resolvedConfig[newName] = newValue;
                 }));
             } else {
-                var _a = resolveWithConfig(name_1, value), resolvedName = _a[0], resolvedValue = _a[1];
+                var _a = resolveWithConfig(name_1, rawValue), resolvedName = _a[0], resolvedValue = _a[1];
                 resolvedConfig[resolvedName] = resolvedValue;
             }
             cycleDetect = 0;
@@ -238,4 +245,6 @@ exports.isDerivative = isDerivative;
 exports.isEntryTuple = isEntryTuple;
 
 exports.isValueObject = isValueObject;
+
+exports.makeInventar = makeInventar;
 //# sourceMappingURL=inventar.js.map
