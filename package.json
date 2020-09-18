@@ -27,7 +27,8 @@
     "clean": "run-p clean:*",
     "clean:build": "trash build test",
     "clean:dist": "trash dist",
-    "prepare-release": "run-s test cov:check dist version"
+    "amend": "git commit --amend -a -C HEAD",
+    "prepare-release": "run-s test cov:check version dist amend"
   },
   "scripts-info": {
     "info": "Display information about the package scripts",
