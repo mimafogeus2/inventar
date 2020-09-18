@@ -1,10 +1,14 @@
 export type InventarValue = string | number
 export type InventarDerivativeValue<T = InventarValue> = (config: Inventar) => T
 export type InventarConfigValueField = InventarValue | InventarDerivativeValue
-export interface InventarRawValueObject {
+export interface InventarRawValueObjectWithValue {
 	value: InventarConfigValueField
 	transformers?: InventarTransformersSequence
 }
+export interface InventarRawValueTransformersOnlyObject {
+	transformers: InventarNonEmptyTransformersSequence
+}
+export type InventarRawValueObject = InventarRawValueObjectWithValue | InventarRawValueTransformersOnlyObject
 export type InventarConfigValue = InventarConfigValueField | InventarRawValueObject
 
 export type InventarEntryTuple = [string, InventarValue]
@@ -19,6 +23,9 @@ export interface InventarTransformerObject {
 	test?: InventarTester
 }
 export type InventarTransformersSequence = Array<InventarTransformer | InventarTransformerObject>
+export type InventarNonEmptyTransformersSequence = {
+	0: InventarTransformer | InventarTransformerObject // An array with at least one item.
+} & InventarTransformersSequence
 
 // Tests allow to define what fields a global transformer runs on
 export type InventarTesterFunction = (tuple: InventarEntryTuple) => boolean

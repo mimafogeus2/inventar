@@ -9,7 +9,15 @@ import {
 	InventarTransformersSequence,
 } from '../../types'
 import { fieldDoesntExistYetError, ResolveError } from '../errors'
-import { isDerivative, isEntryTuple, isTesterFunction, isTransformerObject, isValueObject } from '../utils'
+import {
+	isDerivative,
+	isEntryTuple,
+	isTesterFunction,
+	isTransformerObject,
+	isValueObject,
+	isValueTransformersOnlyObject,
+	isValueWithValueObject,
+} from '../utils'
 
 const FILTER_NONE_REGEXP = /.*/
 
@@ -78,10 +86,11 @@ export const resolveDependencies = (initialData: InventarConfig, options?: Inven
 	while (processQueue.length && cycleDetect <= processQueue.length) {
 		const currentPair = processQueue.shift()
 		const [name, rawValue] = currentPair
-		const value = isValueObject(rawValue) ? rawValue.value : rawValue
 
 		try {
 			if (doesGlobalTransformersExist || isValueObject(rawValue)) {
+				const valueFieldOfObject = isValueWithValueObject(rawValue) ? rawValue.value : undefined
+				const value = valueFieldOfObject || (isValueTransformersOnlyObject(rawValue) ? undefined : rawValue)
 				const resolvedTuple = resolveWithConfig(name, value)
 				const valueTransformers = (isValueObject(rawValue) && rawValue.transformers) || []
 				const allTransformers = [...preTransformers, ...valueTransformers, ...postTransformers]
@@ -91,7 +100,7 @@ export const resolveDependencies = (initialData: InventarConfig, options?: Inven
 					resolvedConfig[newName] = newValue
 				})
 			} else {
-				const [resolvedName, resolvedValue] = resolveWithConfig(name, value)
+				const [resolvedName, resolvedValue] = resolveWithConfig(name, rawValue)
 
 				resolvedConfig[resolvedName] = resolvedValue
 			}

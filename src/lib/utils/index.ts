@@ -5,6 +5,8 @@ import {
 	InventarEntryTuple,
 	InventarOptions,
 	InventarRawValueObject,
+	InventarRawValueObjectWithValue,
+	InventarRawValueTransformersOnlyObject,
 	InventarTesterFunction,
 	InventarTransformer,
 	InventarTransformerObject,
@@ -35,7 +37,12 @@ export const DEFAULT_OPTIONS: InventarOptions = {
 export const mergeOptionsWithDefaults = (options: InventarOptions) =>
 	({ ...DEFAULT_OPTIONS, ...options } as InventarOptions)
 export const isDerivative = (val?: any): val is InventarDerivativeValue => val?.constructor === Function
-export const isValueObject = (val?: any): val is InventarRawValueObject => val?.value !== undefined
+export const isValueWithValueObject = (val?: any): val is InventarRawValueObjectWithValue =>
+	Object.keys(val).includes('value')
+export const isValueTransformersOnlyObject = (val?: any): val is InventarRawValueTransformersOnlyObject =>
+	val?.transformers?.constructor === Array && val?.transformers?.length > 0 && !Object.keys(val).includes('value')
+export const isValueObject = (val?: any): val is InventarRawValueObject =>
+	isValueWithValueObject(val) || isValueTransformersOnlyObject(val)
 export const isFieldName = (val?: any): boolean => val?.constructor === String
 export const isValue = (val?: any): val is InventarValue => val?.constructor === String || val?.constructor === Number
 export const isEntryTuple = (val?: any): val is InventarEntryTuple =>

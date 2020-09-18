@@ -11,6 +11,7 @@ const duplicateValueTransformer: InventarTransformer = ([name, value]) => [
 	[`${name}_1`, value],
 	[`${name}_2`, value],
 ]
+const noInitialValueTransformer: InventarTransformer = () => [['hey', 359]]
 
 const SIMPLE_CONFIG: InventarConfig = { a: 123 }
 const SIMPLE_MULTIPLE_VALUES_CONFIG: InventarConfig = { a: 123, b: 234, c: 345 }
@@ -26,6 +27,7 @@ const UNDEFINED_FIELD_REFERENCE_CONFIG: InventarConfig = { a: config => config.b
 const VALUE_OBJECT_NO_TRANSFORMERS_CONFIG: InventarConfig = { a: { value: 123 } }
 const EMPTY_TRANSFORMER_ARRAY_CONFIG: InventarConfig = { a: { value: 123, transformers: [] } }
 const SINGLE_TRANSFORMER_CONFIG: InventarConfig = { a: { value: 123, transformers: [multiplyTransformer] } }
+const SINGLE_TRANSFORMER_NO_VALUE_CONFIG: InventarConfig = { bbb: { transformers: [noInitialValueTransformer] } }
 const MULTIPLE_TRANSFORMERS_CONFIG: InventarConfig = {
 	a: { value: 123, transformers: [multiplyTransformer, multiplyTransformer] },
 }
@@ -106,6 +108,11 @@ test('Empty transformer array resolve', t => {
 test('Single transformer resolve', t => {
 	const obj = resolveDependencies(SINGLE_TRANSFORMER_CONFIG)
 	t.is(obj.a, 246)
+})
+
+test('Single transformer with no initial value resolve', t => {
+	const obj = resolveDependencies(SINGLE_TRANSFORMER_NO_VALUE_CONFIG)
+	t.deepEqual(obj, { hey: 359 })
 })
 
 test('Multiple transformers resolve', t => {
