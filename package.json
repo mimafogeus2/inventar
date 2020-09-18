@@ -24,11 +24,10 @@
     "cov:send": "nyc report --reporter=lcov && codecov",
     "cov:check": "nyc report && nyc check-coverage --lines 100 --functions 100 --branches 100",
     "version": "standard-version",
-    "reset": "git clean:build -dfx && git reset --hard && npm i",
     "clean": "run-p clean:*",
     "clean:build": "trash build test",
     "clean:dist": "trash dist",
-    "prepare-release": "run-s reset test cov:check version"
+    "prepare-release": "run-s test cov:check dist version"
   },
   "scripts-info": {
     "info": "Display information about the package scripts",
@@ -39,7 +38,6 @@
     "watch": "Watch and rebuild the project on save, then rerun relevant tests",
     "cov": "Rebuild, run tests, then create and open the coverage report",
     "version": "Bump package.json version, update CHANGELOG.md, tag release",
-    "reset": "Delete all untracked files and reset the repo to the last commit",
     "prepare-release": "One-step: clean, build, test, and prep a release"
   },
   "engines": {
