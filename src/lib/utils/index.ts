@@ -42,7 +42,7 @@ export const isDerivative = (val?: any): val is InventarDerivativeValue => val?.
 export const isValueWithValueObject = (val?: any): val is InventarRawValueObjectWithValue =>
 	Object.keys(val).includes('value')
 export const isValueTransformersOnlyObject = (val?: any): val is InventarRawValueTransformersOnlyObject =>
-	val?.transformers?.constructor === Array && val?.transformers?.length > 0 && !Object.keys(val).includes('value')
+	val?.transformers?.constructor === Array && val.transformers.length > 0 && !Object.keys(val).includes('value')
 export const isValueObject = (val?: any): val is InventarRawValueObject =>
 	isValueWithValueObject(val) || isValueTransformersOnlyObject(val)
 export const isFieldName = (val?: any): boolean => val?.constructor === String
