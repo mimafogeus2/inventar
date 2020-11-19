@@ -95,7 +95,7 @@ inject(appWrapper) // <div class="appWrapper" style="--main-color: '#007788', ..
 3. To access your variables in JavaScript or TypeScript:
 
    ```javascript
-   jsConfig.mainText // #007788
+   jsInventar.mainText // #007788
    ```
 
 4. To add them as CSS variable, inject them to a wrapping object:
