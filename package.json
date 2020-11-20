@@ -1,6 +1,6 @@
 {
   "name": "inventar",
-  "version": "0.1.2",
+  "version": "0.2.0",
   "description": "A single place to handle all of your design variables",
   "main": "dist/main/inventar.js",
   "typings": "dist/main/inventar.d.ts",

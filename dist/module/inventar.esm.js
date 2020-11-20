@@ -16,6 +16,16 @@ function __spreadArrays() {
     return r;
 }
 
+var ResolveError = function() {
+    return "Failed to resolve the provided configuration. It might contains a circular dependency, or a reference to an undefined field.";
+};
+
+var fieldDoesntExistYetError = function(fieldName) {
+    return "The field " + String(fieldName) + " doesn't exist (yet?)";
+};
+
+var EXCLUDE_OUTPUT_SYMBOL = {};
+
 var camelCase2KebabCase = function(str) {
     return str.replace(/([a-z0-9]|(?=[A-Z]))([A-Z])/g, "$1-$2").toLowerCase();
 };
@@ -40,9 +50,42 @@ var injectToRoot = function(formattedConfig) {
     }));
 };
 
+var config2CssVars = function(config, _a) {
+    var js2CssNameFormatter = _a.js2CssNameFormatter;
+    var resolvedCssVars = Object.entries(config).reduce((function(agg, _a) {
+        var name = _a[0], value = _a[1];
+        var cssVarName = "--" + js2CssNameFormatter(name);
+        agg[cssVarName] = value;
+        return agg;
+    }), {});
+    return Object.freeze(resolvedCssVars);
+};
+
+var defaultToJsInventarOutput = function(inventar) {
+    return inventar;
+};
+
+var defaultToCssInventarOutput = function(config, options) {
+    return options.shouldMakeCssInventar ? config2CssVars(config, options) : EXCLUDE_OUTPUT_SYMBOL;
+};
+
+var defaultToInjectOutput = function(config, options) {
+    if (!options.shouldMakeCssInventar) {
+        return EXCLUDE_OUTPUT_SYMBOL;
+    }
+    var cssInventar = config2CssVars(config, options);
+    var inject = options.cssVarsInjector.bind(null, cssInventar);
+    return inject;
+};
+
 var DEFAULT_OPTIONS = {
     cssVarsInjector: injectToStyle,
     js2CssNameFormatter: camelCase2KebabCase,
+    outputs: {
+        jsInventar: defaultToJsInventarOutput,
+        cssInventar: defaultToCssInventarOutput,
+        inject: defaultToInjectOutput
+    },
     shouldMakeCssInventar: true
 };
 
@@ -91,12 +134,8 @@ var isTesterFunction = function(val) {
     return (val === null || val === void 0 ? void 0 : val.constructor) === Function;
 };
 
-var ResolveError = function() {
-    return "Failed to resolve the provided configuration. It might contains a circular dependency, or a reference to an undefined field.";
-};
-
-var fieldDoesntExistYetError = function(fieldName) {
-    return "The field " + String(fieldName) + " doesn't exist (yet?)";
+var isOutputFunction = function(val) {
+    return (val === null || val === void 0 ? void 0 : val.constructor) === Function;
 };
 
 var FILTER_NONE_REGEXP = /.*/;
@@ -191,27 +230,27 @@ var resolveDependencies = function(initialData, options) {
     return __assign({}, resolvedConfig);
 };
 
-var resolveConfig = function(rawConfig) {
-    var resolvedConfig = resolveDependencies(rawConfig);
+var resolveConfig = function(rawConfig, options) {
+    var resolvedConfig = resolveDependencies(rawConfig, options);
     return Object.freeze(resolvedConfig);
 };
 
-var config2CssVars = function(config, options) {
-    if (options === void 0) {
-        options = {};
-    }
-    var _a = mergeOptionsWithDefaults(options), js2CssNameFormatter = _a.js2CssNameFormatter, cssVarsInjector = _a.cssVarsInjector;
-    var resolvedCssVars = Object.entries(config).reduce((function(agg, _a) {
-        var name = _a[0], value = _a[1];
-        var cssVarName = "--" + js2CssNameFormatter(name);
-        agg[cssVarName] = value;
+var processOutputs = function(config, options) {
+    return Object.entries(options.outputs).reduce((function(agg, _a) {
+        var outputName = _a[0], outputConfig = _a[1];
+        var outputFunction = isOutputFunction(outputConfig) ? outputConfig : outputConfig.outputFunction;
+        var outputTransformers = isOutputFunction(outputConfig) ? [] : outputConfig.transformers;
+        var transformOutputOptions = __assign(__assign({}, options), {
+            preTransformers: [],
+            postTransformers: outputTransformers
+        });
+        var transformedConfig = outputTransformers && outputTransformers.length ? resolveConfig(config, transformOutputOptions) : config;
+        var processedOutput = outputFunction(transformedConfig, options);
+        if (processedOutput !== EXCLUDE_OUTPUT_SYMBOL) {
+            agg[outputName] = processedOutput;
+        }
         return agg;
     }), {});
-    var inject = cssVarsInjector.bind(null, resolvedCssVars);
-    return {
-        cssInventar: Object.freeze(resolvedCssVars),
-        inject: inject
-    };
 };
 
 var makeInventar = function(config, options) {
@@ -219,14 +258,12 @@ var makeInventar = function(config, options) {
         options = {};
     }
     var optionsWithDefaults = mergeOptionsWithDefaults(options);
-    var jsInventar = resolveConfig(config);
-    var cssInventarObject = optionsWithDefaults.shouldMakeCssInventar ? config2CssVars(jsInventar, optionsWithDefaults) : {};
-    return __assign({
-        jsInventar: jsInventar
-    }, cssInventarObject);
+    var inventar = resolveConfig(config);
+    var outputs = processOutputs(inventar, optionsWithDefaults);
+    return outputs;
 };
 
 export default makeInventar;
 
-export { camelCase2KebabCase, injectToRoot, injectToStyle, isDerivative, isEntryTuple, isValueObject, makeInventar };
+export { camelCase2KebabCase, defaultToCssInventarOutput, defaultToInjectOutput, defaultToJsInventarOutput, injectToRoot, injectToStyle, isDerivative, isEntryTuple, isValueObject, makeInventar };
 //# sourceMappingURL=inventar.esm.js.map
