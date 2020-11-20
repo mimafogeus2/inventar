@@ -11,7 +11,7 @@ export const resolveConfig = (rawConfig: InventarConfig, options?: InventarOptio
 export const processOutputs = (config: Inventar, options: InventarOptions) =>
 	Object.entries(options.outputs).reduce((agg, [outputName, outputConfig]) => {
 		const outputFunction = isOutputFunction(outputConfig) ? outputConfig : outputConfig.outputFunction
-		const outputTransformers = isOutputFunction(outputConfig) ? [] : outputConfig?.transformers
+		const outputTransformers = isOutputFunction(outputConfig) ? [] : outputConfig.transformers
 		const transformOutputOptions = { ...options, preTransformers: [], postTransformers: outputTransformers }
 		const transformedConfig =
 			outputTransformers && outputTransformers.length ? resolveConfig(config, transformOutputOptions) : config
