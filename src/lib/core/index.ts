@@ -1,6 +1,6 @@
-import { Inventar, InventarBoundInjector, InventarConfig, InventarOptions } from '../../types'
-import { mergeOptionsWithDefaults } from '../utils'
+import { Inventar, InventarConfig, InventarOptions } from '../../types'
 import { resolveDependencies } from './resolveDependencies'
+import { isOutputFunction, EXCLUDE_OUTPUT_SYMBOL } from '../utils'
 
 export const resolveConfig = (rawConfig: InventarConfig) => {
 	const resolvedConfig = resolveDependencies(rawConfig)
@@ -8,19 +8,12 @@ export const resolveConfig = (rawConfig: InventarConfig) => {
 	return Object.freeze(resolvedConfig)
 }
 
-export const config2CssVars = (config: Inventar, options: InventarOptions = {}) => {
-	const { js2CssNameFormatter, cssVarsInjector } = mergeOptionsWithDefaults(options)
-
-	const resolvedCssVars = Object.entries(config).reduce((agg, [name, value]) => {
-		const cssVarName = `--${js2CssNameFormatter(name)}`
-		agg[cssVarName] = value
+export const processOutputs = (config: Inventar, options: InventarOptions) =>
+	Object.entries(options.outputs).reduce((agg, [outputName, outputConfig]) => {
+		const outputFunction = isOutputFunction(outputConfig) ? outputConfig : outputConfig.outputFunction
+		const processedOutput = outputFunction(config, options)
+		if (processedOutput !== EXCLUDE_OUTPUT_SYMBOL) {
+			agg[outputName] = processedOutput
+		}
 		return agg
-	}, {} as Inventar)
-
-	const inject: InventarBoundInjector = cssVarsInjector.bind(null, resolvedCssVars)
-
-	return {
-		cssInventar: Object.freeze(resolvedCssVars),
-		inject,
-	}
-}
+	}, {} as Record<string, any>)

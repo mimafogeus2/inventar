@@ -38,16 +38,21 @@ export type InventarBoundInjector = (domEl?: HTMLElement) => void
 export type InventarConfig = Record<string, InventarConfigValue>
 export type Inventar = Record<string, InventarValue>
 
+export type InventarExcludeObject = symbol | Record<string, unknown>
+export type InventarOutputFunction<T> = (config: Inventar, options?: InventarOptions) => T | InventarExcludeObject
+
+export interface InventarOutputOptions {
+	outputFunction: InventarOutputFunction<any>
+	transformers?: InventarTransformersSequence
+}
+
 export interface InventarOptions {
 	js2CssNameFormatter?: (jsName: string) => string
 	cssVarsInjector?: InventarInjector
+	outputs?: Record<string, InventarOutputFunction<any> | InventarOutputOptions>
 	preTransformers?: InventarTransformersSequence
 	postTransformers?: InventarTransformersSequence
 	shouldMakeCssInventar?: boolean
 }
 
-export interface InventarMakerOutput {
-	cssInventar?: Inventar
-	inject?: InventarBoundInjector
-	jsInventar: Inventar
-}
+export type InventarMakerOutput = Record<string, any>
