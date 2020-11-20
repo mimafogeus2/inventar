@@ -44,8 +44,8 @@ export const config2CssVars = (config: Inventar, { js2CssNameFormatter }: Invent
 	return Object.freeze(resolvedCssVars)
 }
 
-export const defaultToJsConfigOutput: InventarOutputFunction<Inventar> = (inventar: Inventar) => inventar
-export const defaultToCssConfigOutput: InventarOutputFunction<Inventar> = (
+export const defaultToJsInventarOutput: InventarOutputFunction<Inventar> = (inventar: Inventar) => inventar
+export const defaultToCssInventarOutput: InventarOutputFunction<Inventar> = (
 	config: Inventar,
 	options: InventarOptions
 ) => (options.shouldMakeCssInventar ? config2CssVars(config, options) : EXCLUDE_OUTPUT_SYMBOL)
@@ -66,8 +66,8 @@ export const DEFAULT_OPTIONS: InventarOptions = {
 	cssVarsInjector: injectToStyle,
 	js2CssNameFormatter: camelCase2KebabCase,
 	outputs: {
-		jsInventar: defaultToJsConfigOutput,
-		cssInventar: defaultToCssConfigOutput,
+		jsInventar: defaultToJsInventarOutput,
+		cssInventar: defaultToCssInventarOutput,
 		inject: defaultToInjectOutput,
 	},
 	shouldMakeCssInventar: true,

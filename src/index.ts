@@ -1,9 +1,9 @@
 import { makeInventar } from './lib'
 import {
 	camelCase2KebabCase,
-	defaultToCssConfigOutput,
+	defaultToCssInventarOutput,
 	defaultToInjectOutput,
-	defaultToJsConfigOutput,
+	defaultToJsInventarOutput,
 	injectToRoot,
 	injectToStyle,
 	isDerivative,
@@ -39,9 +39,9 @@ export {
 	// Formatters
 	camelCase2KebabCase,
 	// Default outputs
-	defaultToCssConfigOutput,
+	defaultToCssInventarOutput,
 	defaultToInjectOutput,
-	defaultToJsConfigOutput,
+	defaultToJsInventarOutput,
 	// Types
 	Inventar,
 	InventarBoundInjector,

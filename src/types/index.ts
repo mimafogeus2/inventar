@@ -41,7 +41,7 @@ export type Inventar = Record<string, InventarValue>
 export type InventarExcludeObject = symbol | Record<string, unknown>
 export type InventarOutputFunction<T> = (config: Inventar, options?: InventarOptions) => T | InventarExcludeObject
 
-export interface InventarOutputOptions {
+export interface InventarOutputObject {
 	outputFunction: InventarOutputFunction<any>
 	transformers?: InventarTransformersSequence
 }
@@ -49,7 +49,7 @@ export interface InventarOutputOptions {
 export interface InventarOptions {
 	js2CssNameFormatter?: (jsName: string) => string
 	cssVarsInjector?: InventarInjector
-	outputs?: Record<string, InventarOutputFunction<any> | InventarOutputOptions>
+	outputs?: Record<string, InventarOutputFunction<any> | InventarOutputObject>
 	preTransformers?: InventarTransformersSequence
 	postTransformers?: InventarTransformersSequence
 	shouldMakeCssInventar?: boolean
