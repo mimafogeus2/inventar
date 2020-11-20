@@ -1,9 +1,18 @@
 import test from 'ava'
 
-import { config2CssVars, resolveConfig } from '.'
+import { resolveConfig, processOutputs } from '.'
+import { mergeOptionsWithDefaults, EXCLUDE_OUTPUT_SYMBOL } from '../utils'
+import { InventarTransformer } from '../../types'
 
 const SIMPLE_CONFIG = { color: '#f00', anotherColor: () => '#0f0' }
-const SIMPLE_RESOLVED_CONFIG = { primaryColor: '#f00' }
+const MINIMAL_RESOLVED_CONFIG = Object.freeze({ color: '#f00' })
+const CUSTOM_OUTPUT_FUNCTION = inventar =>
+	Object.entries(inventar).reduce((agg, [name, value]) => {
+		agg[`${name}${name}`] = value
+		return agg
+	}, {})
+const EXCLUDE_OUTPUT_FUNCTION = () => EXCLUDE_OUTPUT_SYMBOL
+const SIMPLE_TRANSFORMER: InventarTransformer = ([name, value]) => [[name, `${value}${value}`]]
 
 test('resolveConfig', t => {
 	const resolvedConfig = resolveConfig(SIMPLE_CONFIG)
@@ -11,12 +20,62 @@ test('resolveConfig', t => {
 	t.is(Object.isFrozen(resolvedConfig), true)
 })
 
-test('config2CssVars, default options', t => {
-	t.deepEqual(config2CssVars(SIMPLE_RESOLVED_CONFIG).cssInventar, { '--primary-color': '#f00' })
+test('processOutputs, default options', t => {
+	const defaultOutputs = processOutputs(MINIMAL_RESOLVED_CONFIG, mergeOptionsWithDefaults({}))
+	t.deepEqual(Object.keys(defaultOutputs), ['jsInventar', 'cssInventar', 'inject'])
+	t.deepEqual(defaultOutputs.jsInventar, { color: '#f00' })
+	t.deepEqual(defaultOutputs.cssInventar, { '--color': '#f00' })
 })
 
-test('config2CssVars, custom name formatter', t => {
-	t.deepEqual(config2CssVars(SIMPLE_RESOLVED_CONFIG, { js2CssNameFormatter: str => str.toUpperCase() }).cssInventar, {
-		'--PRIMARYCOLOR': '#f00',
-	})
+test('processOutputs, shouldMakeCssInventar === false', t => {
+	const defaultOutputs = processOutputs(
+		MINIMAL_RESOLVED_CONFIG,
+		mergeOptionsWithDefaults({ shouldMakeCssInventar: false })
+	)
+	t.deepEqual(Object.keys(defaultOutputs), ['jsInventar'])
+	t.deepEqual(defaultOutputs.jsInventar, { color: '#f00' })
+})
+
+test('processOutputs, custom output', t => {
+	const output = processOutputs(
+		MINIMAL_RESOLVED_CONFIG,
+		mergeOptionsWithDefaults({ outputs: { myOutput: CUSTOM_OUTPUT_FUNCTION } })
+	)
+	t.deepEqual(output, { myOutput: { colorcolor: '#f00' } })
+})
+
+test('processOutputs, custom output with EXCLUDE_OUTPUT_SYMBOL', t => {
+	const output = processOutputs(
+		MINIMAL_RESOLVED_CONFIG,
+		mergeOptionsWithDefaults({ outputs: { myOutput: CUSTOM_OUTPUT_FUNCTION, excludedOutput: EXCLUDE_OUTPUT_FUNCTION } })
+	)
+	t.deepEqual(output, { myOutput: { colorcolor: '#f00' } })
+})
+
+test('processOutputs, custom output with config object', t => {
+	const output = processOutputs(
+		MINIMAL_RESOLVED_CONFIG,
+		mergeOptionsWithDefaults({ outputs: { myOutput: { outputFunction: CUSTOM_OUTPUT_FUNCTION } } })
+	)
+	t.deepEqual(output, { myOutput: { colorcolor: '#f00' } })
+})
+
+test('processOutputs, custom output with config object and transformer', t => {
+	const output = processOutputs(
+		MINIMAL_RESOLVED_CONFIG,
+		mergeOptionsWithDefaults({
+			outputs: { myOutput: { outputFunction: CUSTOM_OUTPUT_FUNCTION, transformers: [SIMPLE_TRANSFORMER] } },
+		})
+	)
+	t.deepEqual(output, { myOutput: { colorcolor: '#f00#f00' } })
+})
+
+test('processOutputs, custom output with empty transformers array', t => {
+	const output = processOutputs(
+		MINIMAL_RESOLVED_CONFIG,
+		mergeOptionsWithDefaults({
+			outputs: { myOutput: { outputFunction: CUSTOM_OUTPUT_FUNCTION, transformers: [] } },
+		})
+	)
+	t.deepEqual(output, { myOutput: { colorcolor: '#f00' } })
 })

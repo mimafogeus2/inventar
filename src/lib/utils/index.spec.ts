@@ -1,8 +1,8 @@
 import test from 'ava'
 
 import {
+	defaultToInjectOutput,
 	DEFAULT_OPTIONS,
-	injectToStyle,
 	isBoundInjector,
 	isDerivative,
 	isEntryTuple,
@@ -11,7 +11,7 @@ import {
 	isValueTransformersOnlyObject,
 	mergeOptionsWithDefaults,
 } from '.'
-import { config2CssVars, resolveConfig } from '../core'
+import { resolveConfig } from '../core'
 
 test('mergeOptionsWithDefaults, empty object', t => {
 	t.deepEqual(mergeOptionsWithDefaults({}), DEFAULT_OPTIONS)
@@ -40,10 +40,14 @@ test('isDerivative', t => {
 })
 
 test('Default injector function', t => {
-	const myInventar = config2CssVars(resolveConfig({ oneParam: 1 }))
+	const myInventar = resolveConfig({ oneParam: 1 })
+	const defaultInjector = defaultToInjectOutput(myInventar, DEFAULT_OPTIONS)
 	const domEl = document.createElement('div')
 
-	injectToStyle(myInventar.cssInventar, domEl)
+	if (isBoundInjector(defaultInjector)) {
+		defaultInjector(domEl)
+	}
+
 	const domElementStyle = domEl.getAttribute('style')
 	t.is(domElementStyle, '--one-param: 1')
 })
