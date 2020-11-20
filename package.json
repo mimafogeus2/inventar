@@ -24,11 +24,13 @@
     "cov:send": "nyc report --reporter=lcov && codecov",
     "cov:check": "nyc report && nyc check-coverage --lines 100 --functions 100 --branches 100",
     "version": "standard-version",
+    "version:minor": "standard-version --release-as minor",
     "clean": "run-p clean:*",
     "clean:build": "trash build test",
     "clean:dist": "trash dist",
     "amend": "git commit --amend -a -C HEAD",
-    "prepare-release": "run-s test cov:check version dist amend"
+    "prepare-release": "run-s test cov:check version dist amend",
+    "prepare-release:minor": "run-s test cov:check version:minor dist amend"
   },
   "scripts-info": {
     "info": "Display information about the package scripts",
