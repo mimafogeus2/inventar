@@ -281,7 +281,7 @@ const INVENTAR_OPTIONS = {
 By default `makeInventar` outputs three items:
 
 * `jsInventar` - A JavaScript object that is the direct output of `makeInventar`. It should be used with JS styling libraries or when JS logics needs to access your Inventar.
-* `cssInventar` - Similar to `jsInventar`, but with its keys formatted in the css variables convention (``myKey` -> `--my-key`). It should be used when using custom methods to add Inventar as CSS variables (e.g. as a style in React).
+* `cssInventar` - Similar to `jsInventar`, but with its keys formatted in the css variables convention (`myKey` -> `--my-key`). It should be used when using custom methods to add Inventar as CSS variables (e.g. as a style in React).
   You can change the key formatting by passing your own `js2CssNameFormatter` function in the options.
 * `inject` - A function that inject your Inventar as css variables to a provided DOM element. You can use your own custom injector by passing it in the options as `cssVarsInjector`.
 
