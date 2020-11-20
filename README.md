@@ -18,6 +18,7 @@ The nicest, most organized TS/JS single source of truth for your style variables
   - [Transformers](#transformers)
     - [Value-Specific Transformers](#value-specific-transformers)
     - [Global Transformers](#global-transformers)
+  - [Custom Outputs](#custom-outputs)
   - [Contribute](#contribute)
 
 
@@ -207,12 +208,13 @@ This loop continues until the queue is empty (in which case it's completely reso
 
 These are all optional.
 
-| option              | type                                                         | default               | description                                                  |
-| ------------------- | ------------------------------------------------------------ | --------------------- | ------------------------------------------------------------ |
-| cssVarsInjector     | `(cssVarsConfig:inventarConfig, domEl: HTMLElement) => void` | `injectToStyle`       | Overrides the way CSS vars are injected to a DOM element when `inject` is used. Two functions are provided - **`injectToStyle`**, which adds CSS variables as inline styles and allows you to choose which DOM element will be injected, and **`injectToRoot`** which adds them to the document body with `setProperty` and is more backward compatible. You can also write your own. |
-| js2CssNameFormatter | `(jsName:string) => string`                                  | `camelCase2KebabCase` | Formats JS variable names are to css variable names.         |
-| preTransformers     | `InventarTransformersSequence`                               | `[]`                  | A sequence of transformers to be executed on every variable, before its own transformers run. |
-| postTransformers    | `InventarTransformersSequence`                               | `[]`                  | A sequence of transformers to be executed on every variable, after its own transformers run. |
+| option              | type                                                         | default                                                      | description                                                  |
+| ------------------- | ------------------------------------------------------------ | ------------------------------------------------------------ | ------------------------------------------------------------ |
+| cssVarsInjector     | `(cssVarsConfig:inventarConfig, domEl: HTMLElement) => void` | `injectToStyle`                                              | Overrides the way CSS vars are injected to a DOM element when `inject` is used. Two functions are provided - **`injectToStyle`**, which adds CSS variables as inline styles and allows you to choose which DOM element will be injected, and **`injectToRoot`** which adds them to the document body with `setProperty` and is more backward compatible. You can also write your own. |
+| js2CssNameFormatter | `(jsName:string) => string`                                  | `camelCase2KebabCase`                                        | Formats JS variable names are to css variable names.         |
+| outputs             | ```Array<InventarOutputFunction \| InventarOutput>```    | ```{ jsInventar, cssInventar, inject }```, as per this documentation. | Overrides the default output formats. See [Custom Outputs](#custom-outputs) for more details. |
+| preTransformers     | `InventarTransformersSequence`                               | `[]`                                                         | A sequence of transformers to be executed on every variable, before its own transformers run. |
+| postTransformers    | `InventarTransformersSequence`                               | `[]`                                                         | A sequence of transformers to be executed on every variable, after its own transformers run. |
 
 
 
@@ -270,6 +272,66 @@ const INVENTAR_OPTIONS = {
     { transformer: doThisLastOnColors, test: ([name, value]) => name.toLowerCase().includes('color') }
   ],
 }
+```
+
+
+
+## Custom Outputs
+
+By default `makeInventar` outputs three items:
+
+* `jsInventar` - A JavaScript object that is the direct output of `makeInventar`. It should be used with JS styling libraries or when JS logics needs to access your Inventar.
+* `cssInventar` - Similar to `jsInventar`, but with its keys formatted in the css variables convention (``myKey` -> `--my-key`). It should be used when using custom methods to add Inventar as CSS variables (e.g. as a style in React).
+  You can change the key formatting by passing your own `js2CssNameFormatter` function in the options.
+* `inject` - A function that inject your Inventar as css variables to a provided DOM element. You can use your own custom injector by passing it in the options as `cssVarsInjector`.
+
+You can replace these with a custom output to generate other formats (e.g. various configuration files), by providing an `outputs` option, which is an object of `InventarOutputFunction`s and `InventarOutputConfig`s.
+
+An `InventarOutputFunction` is a function that receives a processed Inventar and an `InventarOptions` object, and returns any other value. For example, this output function returns a stringified JSON:
+
+```typescript
+const jsonOutput = (inventar: Inventar, options: InventarOptions) => JSON.stringify(inventar)
+...
+const { jsonInventar } = makeInventar({ ... }, { outputs: { jsonInventar: jsonOutput } })
+```
+
+As this completely overrides the default, you can import default output and use them in addition to your custom one:
+
+```typescript
+import {
+	defaultToCssInventarOutput, // cssInventar output
+	defaultJsInventarOutput, // jsInventar output
+	defaultToInjectOutput, // inject function output
+	makeInventar,
+} from 'inventar'
+
+...
+
+const { inject, jsonInventar } = makeInventar(
+  { ... },
+  { outputs: {
+   	inject: defaultToInjectOutput,
+   	json: jsonOutput,
+  } }
+)
+```
+
+You can also use custom outputs to provide output-specific transformers. These are the same transformers you'd use everywhere else, but they'll only be run on the specific output:
+
+```typescript
+import {
+	defaultToCssInventarOutput, // cssInventar output
+	defaultJsInventarOutput, // jsInventar output
+	makeInventar,
+} from 'inventar'
+
+const { jsInventar, cssInventar } = makeInventar(
+  { ... },
+	{ outputs: {
+   	jsInventar: defaultJsInventarOutput,
+   	cssInventar: { outputFunction: defaultToCssInventarOutput, transformers: [formatColorsToRgba] }
+  } }
+)
 ```
 
 
