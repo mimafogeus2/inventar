@@ -2,6 +2,7 @@ import test from 'ava'
 
 import { resolveConfig, processOutputs } from '.'
 import { mergeOptionsWithDefaults, EXCLUDE_OUTPUT_SYMBOL } from '../utils'
+import { InventarTransformer } from '../../types'
 
 const SIMPLE_CONFIG = { color: '#f00', anotherColor: () => '#0f0' }
 const MINIMAL_RESOLVED_CONFIG = Object.freeze({ color: '#f00' })
@@ -11,6 +12,7 @@ const CUSTOM_OUTPUT_FUNCTION = inventar =>
 		return agg
 	}, {})
 const EXCLUDE_OUTPUT_FUNCTION = () => EXCLUDE_OUTPUT_SYMBOL
+const SIMPLE_TRANSFORMER: InventarTransformer = ([name, value]) => [[name, `${value}${value}`]]
 
 test('resolveConfig', t => {
 	const resolvedConfig = resolveConfig(SIMPLE_CONFIG)
@@ -46,6 +48,34 @@ test('processOutputs, custom output with EXCLUDE_OUTPUT_SYMBOL', t => {
 	const output = processOutputs(
 		MINIMAL_RESOLVED_CONFIG,
 		mergeOptionsWithDefaults({ outputs: { myOutput: CUSTOM_OUTPUT_FUNCTION, excludedOutput: EXCLUDE_OUTPUT_FUNCTION } })
+	)
+	t.deepEqual(output, { myOutput: { colorcolor: '#f00' } })
+})
+
+test('processOutputs, custom output with config object', t => {
+	const output = processOutputs(
+		MINIMAL_RESOLVED_CONFIG,
+		mergeOptionsWithDefaults({ outputs: { myOutput: { outputFunction: CUSTOM_OUTPUT_FUNCTION } } })
+	)
+	t.deepEqual(output, { myOutput: { colorcolor: '#f00' } })
+})
+
+test('processOutputs, custom output with config object and transformer', t => {
+	const output = processOutputs(
+		MINIMAL_RESOLVED_CONFIG,
+		mergeOptionsWithDefaults({
+			outputs: { myOutput: { outputFunction: CUSTOM_OUTPUT_FUNCTION, transformers: [SIMPLE_TRANSFORMER] } },
+		})
+	)
+	t.deepEqual(output, { myOutput: { colorcolor: '#f00#f00' } })
+})
+
+test('processOutputs, custom output with empty transformers array', t => {
+	const output = processOutputs(
+		MINIMAL_RESOLVED_CONFIG,
+		mergeOptionsWithDefaults({
+			outputs: { myOutput: { outputFunction: CUSTOM_OUTPUT_FUNCTION, transformers: [] } },
+		})
 	)
 	t.deepEqual(output, { myOutput: { colorcolor: '#f00' } })
 })
