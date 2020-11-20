@@ -15,7 +15,8 @@ import {
 	InventarValue,
 } from '../../types'
 
-export const EXCLUDE_OUTPUT_SYMBOL: InventarExcludeObject = Symbol ? Symbol('EXCLUDE_OUTPUT') : {}
+// Object reference used as unique return value.
+export const EXCLUDE_OUTPUT_SYMBOL: InventarExcludeObject = {}
 
 export const camelCase2KebabCase = (str: string) => str.replace(/([a-z0-9]|(?=[A-Z]))([A-Z])/g, '$1-$2').toLowerCase()
 const cssVars2StyleString = (config: Inventar) =>
@@ -34,7 +35,7 @@ export const injectToRoot = (formattedConfig: Inventar) => {
 	formattedConfigPairs.forEach(([name, value]) => document.documentElement.style.setProperty(name, String(value)))
 }
 
-export const config2CssVars = (config: Inventar, { js2CssNameFormatter }: InventarOptions = {}) => {
+export const config2CssVars = (config: Inventar, { js2CssNameFormatter }: InventarOptions) => {
 	const resolvedCssVars = Object.entries(config).reduce((agg, [name, value]) => {
 		const cssVarName = `--${js2CssNameFormatter(name)}`
 		agg[cssVarName] = value

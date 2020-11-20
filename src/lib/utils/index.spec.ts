@@ -6,6 +6,7 @@ import {
 	isBoundInjector,
 	isDerivative,
 	isEntryTuple,
+	isOutputFunction,
 	isTesterFunction,
 	isTransformerObject,
 	isValueTransformersOnlyObject,
@@ -97,4 +98,13 @@ test('isBoundInjector', t => {
 	)
 	t.is(isBoundInjector(1), false)
 	t.is(isBoundInjector(null), false)
+})
+
+test('isOutputFunction', t => {
+	t.is(
+		isOutputFunction(() => {}),
+		true
+	)
+	t.is(isOutputFunction(1), false)
+	t.is(isOutputFunction(null), false)
 })
